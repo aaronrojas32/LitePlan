@@ -8,7 +8,7 @@ import {
   saveProject,
   updateProjectOwnedMap,
 } from './lib/storage/projectStore';
-import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider, useToast } from './context/ToastContext';
 import { Logo } from './components/Logo';
 import { Dashboard } from './components/dashboard/Dashboard';
@@ -24,17 +24,14 @@ import {
   LayoutDashboard,
   Folder,
   Settings,
-  Sun,
-  Moon,
-  Laptop,
   Menu,
   X,
+  Boxes,
 } from 'lucide-react';
 
 type NavView = 'dashboard' | 'projects' | 'detail';
 
 function AppContent() {
-  const { theme, setTheme } = useTheme();
   const { showToast } = useToast();
 
   const [projects, setProjects] = useState<Project[]>([]);
@@ -70,11 +67,13 @@ function AppContent() {
   const handleCreateProject = async (name: string, content: string, filename: string, description: string) => {
     try {
       const newProj = await createProjectFromImport(name, content, filename, description);
-      await refreshProjects();
+      // Immediately update projects state to prevent race conditions & blank screen
+      setProjects((prev) => [newProj, ...prev.filter((p) => p.id !== newProj.id)]);
       setActiveProjectId(newProj.id);
       setCurrentView('detail');
       showToast(`Project "${newProj.name}" created!`, 'success');
-    } catch {
+    } catch (err: any) {
+      console.error('Error creating project:', err);
       showToast('Failed to create project from file', 'error');
     }
   };
@@ -83,7 +82,7 @@ function AppContent() {
     try {
       const copy = await duplicateProject(id);
       if (copy) {
-        await refreshProjects();
+        setProjects((prev) => [copy, ...prev]);
         showToast(`Duplicated as "${copy.name}"`, 'success');
       }
     } catch {
@@ -95,7 +94,7 @@ function AppContent() {
     if (!projectToDelete) return;
     try {
       await deleteProject(projectToDelete.id);
-      await refreshProjects();
+      setProjects((prev) => prev.filter((p) => p.id !== projectToDelete.id));
       if (activeProjectId === projectToDelete.id) {
         setActiveProjectId(null);
         setCurrentView('projects');
@@ -113,7 +112,7 @@ function AppContent() {
     try {
       const updated = { ...projectToRename, name: newName };
       await saveProject(updated);
-      await refreshProjects();
+      setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
       showToast('Project renamed', 'success');
     } catch {
       showToast('Failed to rename project', 'error');
@@ -163,15 +162,15 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-100/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans text-xs">
+    <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans text-xs">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-2xs">
+      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-2xs">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="lg:hidden p-1.5 rounded-lg text-slate-600 hover:bg-slate-100"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -187,7 +186,7 @@ function AppContent() {
             </div>
           </div>
 
-          {/* Top Actions */}
+          {/* Top Actions (Clean Light Mode) */}
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
@@ -198,26 +197,10 @@ function AppContent() {
               <span className="hidden sm:inline">New Project</span>
             </button>
 
-            {/* Fast Theme Toggle */}
-            <button
-              type="button"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : theme === 'light' ? 'system' : 'dark')}
-              className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-              title={`Theme: ${theme}. Click to switch.`}
-            >
-              {theme === 'light' ? (
-                <Sun className="w-4 h-4 text-amber-500" />
-              ) : theme === 'dark' ? (
-                <Moon className="w-4 h-4 text-blue-400" />
-              ) : (
-                <Laptop className="w-4 h-4 text-slate-400" />
-              )}
-            </button>
-
             <button
               type="button"
               onClick={() => setIsSettingsModalOpen(true)}
-              className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition cursor-pointer"
               title="Settings & Backup"
             >
               <Settings className="w-4 h-4" />
@@ -234,7 +217,7 @@ function AppContent() {
             isMobileMenuOpen ? 'block' : 'hidden'
           } space-y-4`}
         >
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-3 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1">
+          <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-xs space-y-1">
             <button
               type="button"
               onClick={() => {
@@ -243,8 +226,8 @@ function AppContent() {
               }}
               className={`w-full px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2.5 transition cursor-pointer ${
                 currentView === 'dashboard'
-                  ? 'bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-bold border border-blue-200/80 dark:border-blue-900'
-                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                  ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200'
+                  : 'text-slate-700 hover:bg-slate-50'
               }`}
             >
               <LayoutDashboard className="w-4 h-4 text-blue-600" />
@@ -259,15 +242,15 @@ function AppContent() {
               }}
               className={`w-full px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
                 currentView === 'projects'
-                  ? 'bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-bold border border-blue-200/80 dark:border-blue-900'
-                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                  ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200'
+                  : 'text-slate-700 hover:bg-slate-50'
               }`}
             >
               <div className="flex items-center gap-2.5">
                 <Folder className="w-4 h-4 text-slate-500" />
                 <span>Projects</span>
               </div>
-              <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-500">
+              <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-slate-100 text-slate-500">
                 {projects.length}
               </span>
             </button>
@@ -275,7 +258,7 @@ function AppContent() {
 
           {/* Quick Active Builds in Sidebar */}
           {projects.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
+            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs space-y-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1 block">
                 Active Builds
               </span>
@@ -287,8 +270,8 @@ function AppContent() {
                     onClick={() => handleOpenProject(p.id)}
                     className={`w-full px-2.5 py-2 rounded-lg text-left truncate transition flex items-center justify-between cursor-pointer ${
                       activeProjectId === p.id && currentView === 'detail'
-                        ? 'bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200/80 dark:border-blue-900'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        ? 'bg-blue-50 text-blue-700 font-semibold border border-blue-200'
+                        : 'text-slate-600 hover:bg-slate-50'
                     }`}
                   >
                     <span className="truncate">{p.name}</span>
@@ -324,25 +307,40 @@ function AppContent() {
             />
           )}
 
-          {currentView === 'detail' && activeProject && (
-            <ProjectDetail
-              project={activeProject}
-              onBack={() => setCurrentView('projects')}
-              onUpdateOwned={handleUpdateOwned}
-              onUpdateRawOwned={handleUpdateRawOwned}
-              onRename={() => setProjectToRename(activeProject)}
-              onDuplicate={() => handleDuplicateProject(activeProject.id)}
-              onDelete={() => setProjectToDelete(activeProject)}
-            />
+          {currentView === 'detail' && (
+            activeProject ? (
+              <ProjectDetail
+                project={activeProject}
+                onBack={() => setCurrentView('projects')}
+                onUpdateOwned={handleUpdateOwned}
+                onUpdateRawOwned={handleUpdateRawOwned}
+                onRename={() => setProjectToRename(activeProject)}
+                onDuplicate={() => handleDuplicateProject(activeProject.id)}
+                onDelete={() => setProjectToDelete(activeProject)}
+              />
+            ) : (
+              <div className="p-8 text-center bg-white rounded-xl border border-slate-200 shadow-xs space-y-3">
+                <Boxes className="w-10 h-10 text-slate-300 mx-auto" />
+                <h3 className="text-base font-bold text-slate-900">Project Not Found</h3>
+                <p className="text-xs text-slate-500">The selected build project could not be found or is loading.</p>
+                <button
+                  type="button"
+                  onClick={() => setCurrentView('projects')}
+                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs cursor-pointer"
+                >
+                  Back to Projects
+                </button>
+              </div>
+            )
           )}
         </main>
       </div>
 
       {/* Minimal Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-3.5 text-center text-slate-400 text-xs">
+      <footer className="border-t border-slate-200 bg-white py-3.5 text-center text-slate-400 text-xs">
         <div className="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-1">
           <span>LitePlan · Minecraft Build Material Planner</span>
-          <span>IndexedDB local storage · Offline ready</span>
+          <span>Offline Ready · IndexedDB Local Storage</span>
         </div>
       </footer>
 

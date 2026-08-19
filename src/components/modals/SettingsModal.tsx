@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { X, Sun, Moon, Laptop, Download, Upload, Trash2, ShieldAlert, RefreshCw } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { X, Download, Upload, Trash2, ShieldAlert, RefreshCw, Database } from 'lucide-react';
 import { exportLitePlanBackup, importLitePlanBackup, clearAllData } from '../../lib/storage/projectStore';
 import { useToast } from '../../context/ToastContext';
 
@@ -15,7 +14,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   onDataChanged,
 }) => {
-  const { theme, setTheme } = useTheme();
   const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -82,77 +80,48 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs text-xs">
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-lg p-5 shadow-xl border border-slate-200 dark:border-slate-800 space-y-4">
+      <div className="w-full max-w-md bg-white rounded-xl p-6 shadow-xl border border-slate-200 space-y-5">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-            Settings
-          </h3>
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <Database className="w-4 h-4 text-blue-600" />
+            <h3 className="text-sm font-bold text-slate-900">
+              Settings & Data Management
+            </h3>
+          </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            className="p-1 rounded text-slate-400 hover:text-slate-600 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Section 1: Appearance */}
-        <div className="space-y-2">
-          <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
-            Theme
+        {/* Section 1: Data Backup */}
+        <div className="space-y-2.5">
+          <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+            Backup & Sync
           </label>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { id: 'light' as const, label: 'Light', icon: Sun },
-              { id: 'dark' as const, label: 'Dark', icon: Moon },
-              { id: 'system' as const, label: 'System', icon: Laptop },
-            ].map((t) => {
-              const Icon = t.icon;
-              const isSelected = theme === t.id;
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setTheme(t.id)}
-                  className={`p-2.5 rounded border flex flex-col items-center gap-1.5 transition font-medium ${
-                    isSelected
-                      ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-semibold'
-                      : 'border-slate-200 dark:border-slate-750 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{t.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Section 2: Data Backup */}
-        <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-          <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
-            Backup & Data
-          </label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
               onClick={handleExportBackup}
               disabled={isExporting}
-              className="p-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 rounded text-left transition"
+              className="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-left transition cursor-pointer"
             >
-              <div className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-100">
-                {isExporting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5 text-emerald-600" />}
+              <div className="flex items-center gap-1.5 font-semibold text-slate-900">
+                {isExporting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5 text-blue-600" />}
                 <span>Export Backup</span>
               </div>
-              <span className="text-[10px] text-slate-400 block mt-0.5">Download JSON</span>
+              <span className="text-[10px] text-slate-500 block mt-0.5">Download full JSON file</span>
             </button>
 
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isImporting}
-              className="p-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 rounded text-left transition"
+              className="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-left transition cursor-pointer"
             >
               <input
                 type="file"
@@ -161,20 +130,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 onChange={handleImportBackup}
                 className="hidden"
               />
-              <div className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-100">
+              <div className="flex items-center gap-1.5 font-semibold text-slate-900">
                 {isImporting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5 text-emerald-600" />}
                 <span>Import Backup</span>
               </div>
-              <span className="text-[10px] text-slate-400 block mt-0.5">Restore from JSON</span>
+              <span className="text-[10px] text-slate-500 block mt-0.5">Restore from JSON file</span>
             </button>
           </div>
         </div>
 
-        {/* Section 3: Reset */}
-        <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+        {/* Section 2: Danger Zone */}
+        <div className="space-y-2 pt-3 border-t border-slate-100">
+          <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+            Danger Zone
+          </label>
           {confirmClear ? (
-            <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded space-y-2">
-              <div className="flex items-center gap-1.5 text-rose-800 dark:text-rose-300 font-semibold text-xs">
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg space-y-2">
+              <div className="flex items-center gap-1.5 text-rose-800 font-semibold text-xs">
                 <ShieldAlert className="w-4 h-4 shrink-0" />
                 <span>Delete ALL local projects and settings?</span>
               </div>
@@ -182,14 +154,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setConfirmClear(false)}
-                  className="px-2.5 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                  className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 font-medium cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleClearData}
-                  className="px-2.5 py-1 rounded bg-rose-600 text-white font-semibold"
+                  className="px-2.5 py-1 rounded bg-rose-600 text-white font-semibold cursor-pointer hover:bg-rose-700"
                 >
                   Confirm Delete
                 </button>
@@ -199,7 +171,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={() => setConfirmClear(true)}
-              className="text-rose-600 hover:text-rose-700 dark:text-rose-400 text-xs font-medium flex items-center gap-1.5"
+              className="text-rose-600 hover:text-rose-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer py-1"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Clear All Local Storage</span>

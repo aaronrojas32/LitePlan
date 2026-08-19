@@ -11,7 +11,6 @@ import {
   Download,
   ArrowRight,
   FolderGit2,
-  Boxes,
 } from 'lucide-react';
 
 interface ProjectsListProps {
@@ -72,12 +71,12 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
   return (
     <div className="space-y-6">
       {/* Header Bar */}
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
             Build Projects
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Manage your Minecraft construction projects, material lists, and gathering progress
           </p>
         </div>
@@ -101,7 +100,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search projects by name or file..."
-            className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500 shadow-2xs"
+            className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 shadow-2xs"
           />
         </div>
 
@@ -110,7 +109,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
           <select
             value={sortField}
             onChange={(e) => setSortField(e.target.value as SortField)}
-            className="px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-800 dark:text-slate-200 font-medium focus:outline-none cursor-pointer"
+            className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 font-medium focus:outline-none cursor-pointer"
           >
             <option value="updated">Recently Updated</option>
             <option value="name">Project Name</option>
@@ -120,32 +119,29 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
         </div>
       </div>
 
-      {/* Projects Grid (Responsive 3-column with Redesigned Project Card) */}
+      {/* Projects Grid */}
       {filteredProjects.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredProjects.map((project) => (
             <div
               key={project.id}
               onClick={() => onOpenProject(project.id)}
-              className="group relative bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition cursor-pointer flex flex-col justify-between overflow-hidden"
+              className="group relative bg-white rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md transition cursor-pointer flex flex-col justify-between overflow-hidden"
             >
               <div className="p-5 space-y-4">
-                {/* Top Section: Icon Cover + Title + Menu */}
+                {/* Top Section */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3.5 flex-1 min-w-0">
-                    <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1.5 shrink-0 group-hover:scale-105 transition shadow-2xs">
+                    <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center p-1.5 shrink-0 group-hover:scale-105 transition shadow-2xs">
                       <ItemIcon itemId={project.thumbnail || project.materials[0]?.id || 'minecraft:stone'} size={32} />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">
+                      <h3 className="font-bold text-sm text-slate-900 truncate group-hover:text-blue-600 transition">
                         {project.name}
                       </h3>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                        <Boxes className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="font-mono">{project.summary.totalBlocks.toLocaleString()} blocks</span>
-                        <span>·</span>
-                        <span>{project.materials.length} build materials</span>
-                      </div>
+                      <span className="text-[11px] text-slate-400 font-mono truncate block mt-0.5">
+                        {project.sourceFilename || 'Manual Import'}
+                      </span>
                     </div>
                   </div>
 
@@ -154,7 +150,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                     <button
                       type="button"
                       onClick={() => setActiveMenuId(activeMenuId === project.id ? null : project.id)}
-                      className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                      className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
                       title="Project options"
                     >
                       <MoreVertical className="w-4 h-4" />
@@ -162,7 +158,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
 
                     {activeMenuId === project.id && (
                       <div
-                        className="absolute right-0 top-7 z-30 w-36 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 py-1 text-xs text-slate-700 dark:text-slate-300 font-medium"
+                        className="absolute right-0 top-7 z-30 w-36 bg-white rounded-lg shadow-lg border border-slate-200 py-1 text-xs text-slate-700 font-medium"
                       >
                         <button
                           type="button"
@@ -170,7 +166,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                             setActiveMenuId(null);
                             onRenameProject(project);
                           }}
-                          className="w-full px-3 py-1.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2"
+                          className="w-full px-3 py-1.5 text-left hover:bg-slate-50 flex items-center gap-2"
                         >
                           <Edit3 className="w-3.5 h-3.5 text-slate-400" /> Rename
                         </button>
@@ -180,7 +176,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                             setActiveMenuId(null);
                             onDuplicateProject(project.id);
                           }}
-                          className="w-full px-3 py-1.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2"
+                          className="w-full px-3 py-1.5 text-left hover:bg-slate-50 flex items-center gap-2"
                         >
                           <Copy className="w-3.5 h-3.5 text-slate-400" /> Duplicate
                         </button>
@@ -190,18 +186,18 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                             setActiveMenuId(null);
                             onExportProject(project);
                           }}
-                          className="w-full px-3 py-1.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2"
+                          className="w-full px-3 py-1.5 text-left hover:bg-slate-50 flex items-center gap-2"
                         >
                           <Download className="w-3.5 h-3.5 text-slate-400" /> Export
                         </button>
-                        <div className="my-0.5 border-t border-slate-100 dark:border-slate-700"></div>
+                        <div className="my-0.5 border-t border-slate-100"></div>
                         <button
                           type="button"
                           onClick={() => {
                             setActiveMenuId(null);
                             onDeleteProject(project);
                           }}
-                          className="w-full px-3 py-1.5 text-left hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center gap-2"
+                          className="w-full px-3 py-1.5 text-left hover:bg-rose-50 text-rose-600 flex items-center gap-2"
                         >
                           <Trash2 className="w-3.5 h-3.5" /> Delete
                         </button>
@@ -210,18 +206,30 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                   </div>
                 </div>
 
+                {/* Metric Badges */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2 bg-slate-50 border border-slate-150 rounded-lg text-center">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Blocks</span>
+                    <span className="text-xs font-bold font-mono text-slate-900">{project.summary.totalBlocks.toLocaleString()}</span>
+                  </div>
+                  <div className="p-2 bg-slate-50 border border-slate-150 rounded-lg text-center">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Build Materials</span>
+                    <span className="text-xs font-bold font-mono text-slate-900">{project.materials.length} items</span>
+                  </div>
+                </div>
+
                 {/* Progress bar based exclusively on build objects */}
                 <div className="space-y-1.5 pt-1">
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="text-slate-500 font-sans">Build Progress</span>
-                    <span className="font-bold text-slate-900 dark:text-slate-100">
+                    <span className="font-bold text-slate-900">
                       {project.progress.percentage}%
                     </span>
                   </div>
 
-                  <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                  <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
                     <div
-                      className="bg-emerald-600 dark:bg-emerald-500 h-full rounded-full transition-all duration-300"
+                      className="bg-emerald-600 h-full rounded-full transition-all duration-300"
                       style={{ width: `${Math.max(project.progress.percentage, 1)}%` }}
                     ></div>
                   </div>
@@ -234,11 +242,11 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               </div>
 
               {/* Bottom Footer Strip */}
-              <div className="px-5 py-3 bg-slate-50/70 dark:bg-slate-850 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+              <div className="px-5 py-3 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-xs">
                 <span className="text-slate-400 text-[11px] truncate max-w-[140px]">
                   Updated {new Date(project.updatedAt).toLocaleDateString()}
                 </span>
-                <span className="font-semibold text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition flex items-center gap-1">
+                <span className="font-semibold text-blue-600 group-hover:translate-x-1 transition flex items-center gap-1">
                   Open Build <ArrowRight className="w-3.5 h-3.5" />
                 </span>
               </div>
@@ -246,7 +254,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
           ))}
         </div>
       ) : (
-        <div className="py-12 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 space-y-2">
+        <div className="py-12 bg-white rounded-xl border border-slate-200 text-center text-xs text-slate-500 space-y-2">
           <FolderGit2 className="w-8 h-8 text-slate-300 mx-auto" />
           <p>No projects found matching your search.</p>
         </div>

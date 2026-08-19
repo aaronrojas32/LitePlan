@@ -112,7 +112,7 @@ export function parseCSV(content: string): ParsedMaterialRow[] {
     const missing = missingCol < cols.length ? parseQuantity(cols[missingCol]) : total;
     const available = availableCol < cols.length ? parseQuantity(cols[availableCol]) : Math.max(0, total - missing);
 
-    if (total > 0 || rawName.length > 0) {
+    if (total > 0 || missing > 0) {
       rows.push({
         rawName,
         total: total || missing,
