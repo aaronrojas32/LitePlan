@@ -19,6 +19,7 @@ import { DeleteConfirmModal } from './components/modals/DeleteConfirmModal';
 import { RenameProjectModal } from './components/modals/RenameProjectModal';
 import { SettingsModal } from './components/modals/SettingsModal';
 import { ExportModal } from './components/ExportModal';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import {
   Plus,
   LayoutDashboard,
@@ -65,15 +66,18 @@ function AppContent() {
   };
 
   const handleCreateProject = async (name: string, content: string, filename: string, description: string) => {
+    console.log('[LitePlan Debug] handleCreateProject called:', { name, filename, contentLength: content.length });
     try {
       const newProj = await createProjectFromImport(name, content, filename, description);
+      console.log('[LitePlan Debug] Project saved in store:', newProj.id, newProj.name);
       // Immediately update projects state to prevent race conditions & blank screen
       setProjects((prev) => [newProj, ...prev.filter((p) => p.id !== newProj.id)]);
       setActiveProjectId(newProj.id);
       setCurrentView('detail');
       showToast(`Project "${newProj.name}" created!`, 'success');
+      console.log('[LitePlan Debug] Navigation switched to detail view for:', newProj.id);
     } catch (err: any) {
-      console.error('Error creating project:', err);
+      console.error('[LitePlan Debug] Error creating project:', err);
       showToast('Failed to create project from file', 'error');
     }
   };
@@ -287,52 +291,54 @@ function AppContent() {
 
         {/* Center Main View Router */}
         <main className="flex-1 w-full min-w-0">
-          {currentView === 'dashboard' && (
-            <Dashboard
-              projects={projects}
-              onOpenProject={handleOpenProject}
-              onNewProject={() => setIsCreateModalOpen(true)}
-            />
-          )}
-
-          {currentView === 'projects' && (
-            <ProjectsList
-              projects={projects}
-              onOpenProject={handleOpenProject}
-              onNewProject={() => setIsCreateModalOpen(true)}
-              onDuplicateProject={handleDuplicateProject}
-              onRenameProject={setProjectToRename}
-              onDeleteProject={setProjectToDelete}
-              onExportProject={setProjectToExport}
-            />
-          )}
-
-          {currentView === 'detail' && (
-            activeProject ? (
-              <ProjectDetail
-                project={activeProject}
-                onBack={() => setCurrentView('projects')}
-                onUpdateOwned={handleUpdateOwned}
-                onUpdateRawOwned={handleUpdateRawOwned}
-                onRename={() => setProjectToRename(activeProject)}
-                onDuplicate={() => handleDuplicateProject(activeProject.id)}
-                onDelete={() => setProjectToDelete(activeProject)}
+          <ErrorBoundary fallbackTitle="Could not load project view" onReset={() => setCurrentView('dashboard')}>
+            {currentView === 'dashboard' && (
+              <Dashboard
+                projects={projects}
+                onOpenProject={handleOpenProject}
+                onNewProject={() => setIsCreateModalOpen(true)}
               />
-            ) : (
-              <div className="p-8 text-center bg-white rounded-xl border border-slate-200 shadow-xs space-y-3">
-                <Boxes className="w-10 h-10 text-slate-300 mx-auto" />
-                <h3 className="text-base font-bold text-slate-900">Project Not Found</h3>
-                <p className="text-xs text-slate-500">The selected build project could not be found or is loading.</p>
-                <button
-                  type="button"
-                  onClick={() => setCurrentView('projects')}
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs cursor-pointer"
-                >
-                  Back to Projects
-                </button>
-              </div>
-            )
-          )}
+            )}
+
+            {currentView === 'projects' && (
+              <ProjectsList
+                projects={projects}
+                onOpenProject={handleOpenProject}
+                onNewProject={() => setIsCreateModalOpen(true)}
+                onDuplicateProject={handleDuplicateProject}
+                onRenameProject={setProjectToRename}
+                onDeleteProject={setProjectToDelete}
+                onExportProject={setProjectToExport}
+              />
+            )}
+
+            {currentView === 'detail' && (
+              activeProject ? (
+                <ProjectDetail
+                  project={activeProject}
+                  onBack={() => setCurrentView('projects')}
+                  onUpdateOwned={handleUpdateOwned}
+                  onUpdateRawOwned={handleUpdateRawOwned}
+                  onRename={() => setProjectToRename(activeProject)}
+                  onDuplicate={() => handleDuplicateProject(activeProject.id)}
+                  onDelete={() => setProjectToDelete(activeProject)}
+                />
+              ) : (
+                <div className="p-8 text-center bg-white rounded-xl border border-slate-200 shadow-xs space-y-3">
+                  <Boxes className="w-10 h-10 text-slate-300 mx-auto" />
+                  <h3 className="text-base font-bold text-slate-900">Project Not Found</h3>
+                  <p className="text-xs text-slate-500">The selected build project could not be found or is loading.</p>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView('projects')}
+                    className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs cursor-pointer"
+                  >
+                    Back to Projects
+                  </button>
+                </div>
+              )
+            )}
+          </ErrorBoundary>
         </main>
       </div>
 
@@ -345,53 +351,57 @@ function AppContent() {
       </footer>
 
       {/* Global Modals */}
-      <CreateProjectModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreate={handleCreateProject}
-      />
-
-      <DeleteConfirmModal
-        isOpen={!!projectToDelete}
-        projectName={projectToDelete?.name || ''}
-        onClose={() => setProjectToDelete(null)}
-        onConfirm={handleConfirmDelete}
-      />
-
-      <RenameProjectModal
-        isOpen={!!projectToRename}
-        currentName={projectToRename?.name || ''}
-        onClose={() => setProjectToRename(null)}
-        onRename={handleConfirmRename}
-      />
-
-      <SettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-        onDataChanged={refreshProjects}
-      />
-
-      {projectToExport && (
-        <ExportModal
-          isOpen={!!projectToExport}
-          onClose={() => setProjectToExport(null)}
-          materials={projectToExport.materials}
-          rawMaterials={projectToExport.rawMaterials}
-          craftingSteps={projectToExport.craftingSteps}
-          projectName={projectToExport.name}
+      <ErrorBoundary fallbackTitle="Modal Error">
+        <CreateProjectModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onCreate={handleCreateProject}
         />
-      )}
+
+        <DeleteConfirmModal
+          isOpen={!!projectToDelete}
+          projectName={projectToDelete?.name || ''}
+          onClose={() => setProjectToDelete(null)}
+          onConfirm={handleConfirmDelete}
+        />
+
+        <RenameProjectModal
+          isOpen={!!projectToRename}
+          currentName={projectToRename?.name || ''}
+          onClose={() => setProjectToRename(null)}
+          onRename={handleConfirmRename}
+        />
+
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+          onDataChanged={refreshProjects}
+        />
+
+        {projectToExport && (
+          <ExportModal
+            isOpen={!!projectToExport}
+            onClose={() => setProjectToExport(null)}
+            materials={projectToExport.materials}
+            rawMaterials={projectToExport.rawMaterials}
+            craftingSteps={projectToExport.craftingSteps}
+            projectName={projectToExport.name}
+          />
+        )}
+      </ErrorBoundary>
     </div>
   );
 }
 
 export function App() {
   return (
-    <ThemeProvider>
-      <ToastProvider>
-        <AppContent />
-      </ToastProvider>
-    </ThemeProvider>
+    <ErrorBoundary fallbackTitle="LitePlan Application Error">
+      <ThemeProvider>
+        <ToastProvider>
+          <AppContent />
+        </ToastProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

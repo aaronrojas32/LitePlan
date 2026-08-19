@@ -23,7 +23,7 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
   const rawBreakdown = getItemRawBreakdown(material.id, material.totalRequired);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden flex justify-end bg-slate-900/40 backdrop-blur-xs transition-opacity text-xs">
+    <div className="fixed inset-0 z-50 overflow-hidden flex justify-end bg-slate-900/50 backdrop-blur-sm transition-opacity text-xs">
       <div
         className="w-full max-w-lg bg-white h-full shadow-2xl flex flex-col border-l border-slate-200 overflow-y-auto"
       >

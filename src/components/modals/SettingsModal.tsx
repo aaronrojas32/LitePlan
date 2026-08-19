@@ -79,7 +79,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs text-xs">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm text-xs">
       <div className="w-full max-w-md bg-white rounded-xl p-6 shadow-xl border border-slate-200 space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">

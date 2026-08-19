@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { X, FileText, Upload, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { SAMPLE_NETHER_PORTAL_TXT, SAMPLE_NETHER_PORTAL_CSV, SAMPLE_REDSTONE_FACTORY_CSV } from '../../data/sampleData';
 import { parseLitematicaFile } from '../../lib/parser';
@@ -21,6 +21,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Always reset fields when modal closes or opens fresh
   useEffect(() => {
     if (!isOpen) {
       setName('');
@@ -32,6 +33,21 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     }
   }, [isOpen]);
 
+  // Preview parsed stats if file content is available (HOOK IS UNCONDITIONALLY CALLED)
+  const parsedPreview = useMemo(() => {
+    if (!fileContent) return null;
+    try {
+      const parsed = parseLitematicaFile(fileContent, filename || 'preview.csv');
+      return {
+        blocks: parsed.summary.totalBlocks,
+        materials: parsed.materials.length,
+      };
+    } catch {
+      return null;
+    }
+  }, [fileContent, filename]);
+
+  // ONLY return null after all hooks have been declared!
   if (!isOpen) return null;
 
   const handleFileUpload = (file: File) => {
@@ -65,25 +81,21 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     }
   };
 
-  // Preview parsed stats if file content is available
-  const parsedPreview = React.useMemo(() => {
-    if (!fileContent) return null;
-    try {
-      const parsed = parseLitematicaFile(fileContent, filename || 'preview.csv');
-      return {
-        blocks: parsed.summary.totalBlocks,
-        materials: parsed.materials.length,
-      };
-    } catch {
-      return null;
-    }
-  }, [fileContent, filename]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fileContent) return;
+    if (!fileContent) {
+      console.warn('[LitePlan Debug] Create project cancelled: No file content');
+      return;
+    }
 
     setIsProcessing(true);
+    console.log('[LitePlan Debug] Submitting project creation:', {
+      name: name.trim() || filename.replace(/\.[^/.]+$/, ''),
+      filename: filename || 'materials.csv',
+      contentLength: fileContent.length,
+      description: description.trim(),
+    });
+
     try {
       await onCreate(
         name.trim() || filename.replace(/\.[^/.]+$/, ''),
@@ -91,16 +103,17 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         filename || 'materials.csv',
         description.trim()
       );
+      console.log('[LitePlan Debug] Project creation succeeded, closing modal');
       onClose();
     } catch (err) {
-      console.error('Error submitting project creation:', err);
+      console.error('[LitePlan Debug] Error submitting project creation:', err);
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs text-xs">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm text-xs">
       <div className="w-full max-w-lg bg-white rounded-xl p-6 shadow-2xl border border-slate-200 space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
