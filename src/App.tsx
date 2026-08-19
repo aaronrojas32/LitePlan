@@ -66,15 +66,18 @@ function AppContent() {
   };
 
   const handleCreateProject = async (name: string, content: string, filename: string, description: string) => {
+    console.log('[LitePlan Debug] handleCreateProject called:', { name, filename, contentLength: content.length });
     try {
       const newProj = await createProjectFromImport(name, content, filename, description);
+      console.log('[LitePlan Debug] Project saved in store:', newProj.id, newProj.name);
       // Immediately update projects state to prevent race conditions & blank screen
       setProjects((prev) => [newProj, ...prev.filter((p) => p.id !== newProj.id)]);
       setActiveProjectId(newProj.id);
       setCurrentView('detail');
       showToast(`Project "${newProj.name}" created!`, 'success');
+      console.log('[LitePlan Debug] Navigation switched to detail view for:', newProj.id);
     } catch (err: any) {
-      console.error('Error creating project:', err);
+      console.error('[LitePlan Debug] Error creating project:', err);
       showToast('Failed to create project from file', 'error');
     }
   };
