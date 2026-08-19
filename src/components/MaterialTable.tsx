@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { AnalyzedMaterial } from '../types/material';
 import { MaterialRow } from './MaterialRow';
-import { ArrowUpDown, ArrowDown, ArrowUp, Check } from 'lucide-react';
-import { ItemIcon } from './ItemIcon';
+import { ArrowUpDown, ArrowDown, ArrowUp } from 'lucide-react';
 import { calculateMaterialProgress } from '../lib/calculations/progressCalculator';
 
 interface MaterialTableProps {
@@ -62,7 +61,7 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
 
   if (materials.length === 0) {
     return (
-      <div className="w-full bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-8 text-center text-slate-500 dark:text-slate-400 text-xs">
+      <div className="w-full bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-500 text-xs">
         No materials found matching your filter or search query.
       </div>
     );
@@ -73,22 +72,22 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
       return <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 opacity-0 group-hover:opacity-100 transition" />;
     }
     return sortDirection === 'asc' ? (
-      <ArrowUp className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+      <ArrowUp className="w-3.5 h-3.5 text-blue-600" />
     ) : (
-      <ArrowDown className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+      <ArrowDown className="w-3.5 h-3.5 text-blue-600" />
     );
   };
 
   return (
     <div className="w-full space-y-3">
       {/* Desktop Table View */}
-      <div className="hidden md:block w-full bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+      <div className="hidden md:block w-full bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 text-slate-600 dark:text-slate-300 font-semibold select-none text-[11px] uppercase tracking-wider">
+            <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold select-none text-[11px] uppercase tracking-wider">
               <th className="py-3 px-3 w-12 text-center">Icon</th>
               <th
-                className="py-3 px-3 cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition group"
+                className="py-3 px-3 cursor-pointer hover:text-slate-900 transition group"
                 onClick={() => handleSort('name')}
               >
                 <div className="flex items-center gap-1">
@@ -97,7 +96,7 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
                 </div>
               </th>
               <th
-                className="py-3 px-3 text-right cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition group"
+                className="py-3 px-3 text-right cursor-pointer hover:text-slate-900 transition group"
                 onClick={() => handleSort('required')}
               >
                 <div className="flex items-center justify-end gap-1">
@@ -106,7 +105,7 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
                 </div>
               </th>
               <th
-                className="py-3 px-3 cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition group"
+                className="py-3 px-3 cursor-pointer hover:text-slate-900 transition group"
                 onClick={() => handleSort('stacks')}
               >
                 <div className="flex items-center gap-1">
@@ -118,7 +117,7 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
                 <span>Shulkers</span>
               </th>
               <th
-                className="py-3 px-3 text-center cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition group"
+                className="py-3 px-3 text-center cursor-pointer hover:text-slate-900 transition group"
                 onClick={() => handleSort('owned')}
               >
                 <div className="flex items-center justify-center gap-1">
@@ -127,7 +126,7 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
                 </div>
               </th>
               <th
-                className="py-3 px-3 text-right cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition group"
+                className="py-3 px-3 text-right cursor-pointer hover:text-slate-900 transition group"
                 onClick={() => handleSort('missing')}
               >
                 <div className="flex items-center justify-end gap-1">
@@ -136,7 +135,7 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
                 </div>
               </th>
               <th
-                className="py-3 px-3 text-center cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition group"
+                className="py-3 px-3 text-center cursor-pointer hover:text-slate-900 transition group"
                 onClick={() => handleSort('progress')}
               >
                 <div className="flex items-center justify-center gap-1">
@@ -146,78 +145,56 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
               </th>
             </tr>
           </thead>
-          <tbody>
-            {sortedMaterials.map((material) => (
+
+          <tbody className="divide-y divide-slate-100">
+            {sortedMaterials.map((mat) => (
               <MaterialRow
-                key={material.id}
-                material={material}
-                isSelected={selectedMaterialId === material.id}
-                onSelect={() => onSelectMaterial(material)}
-                onUpdateOwned={(newOwned) => onUpdateOwned(material.id, newOwned)}
+                key={mat.id}
+                material={mat}
+                isSelected={selectedMaterialId === mat.id}
+                onSelect={() => onSelectMaterial(mat)}
+                onUpdateOwned={(newOwned) => onUpdateOwned(mat.id, newOwned)}
               />
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Mobile Card List */}
+      {/* Mobile Card List View */}
       <div className="md:hidden space-y-2.5">
-        {sortedMaterials.map((material) => (
+        {sortedMaterials.map((mat) => (
           <div
-            key={material.id}
-            onClick={() => onSelectMaterial(material)}
-            className={`p-4 bg-white dark:bg-slate-900 rounded-xl border text-xs space-y-3 transition shadow-xs ${
-              selectedMaterialId === material.id
-                ? 'border-blue-600 dark:border-blue-500 ring-1 ring-blue-500/30'
-                : 'border-slate-200 dark:border-slate-800'
-            }`}
+            key={mat.id}
+            onClick={() => onSelectMaterial(mat)}
+            className="p-3.5 bg-white rounded-xl border border-slate-200 space-y-3 cursor-pointer"
           >
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1 shrink-0">
-                  <ItemIcon itemId={material.id} size={26} />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-                    {material.displayName}
-                  </h4>
-                  <span className="text-[11px] font-mono text-slate-400">
-                    {material.minecraftId}
-                  </span>
-                </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="font-bold text-xs text-slate-900">{mat.displayName}</span>
               </div>
-
-              <div className="text-right">
-                <div className="font-mono font-bold text-slate-900 dark:text-slate-100">
-                  {material.totalRequired.toLocaleString()} blocks
-                </div>
-                <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
-                  {material.stacksRequired.formatted}
-                </div>
-              </div>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                mat.missing === 0
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : mat.owned > 0
+                  ? 'bg-amber-100 text-amber-800'
+                  : 'bg-slate-100 text-slate-600'
+              }`}>
+                {mat.missing === 0 ? 'Complete' : `${mat.missing} missing`}
+              </span>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-              <span className="text-emerald-700 dark:text-emerald-400 font-mono font-semibold">
-                {material.storage.shulkerStorageFormatted}
-              </span>
-
-              <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                <span className="text-slate-500 text-xs font-medium">Owned:</span>
-                <input
-                  type="number"
-                  min="0"
-                  value={material.owned}
-                  onChange={(e) => onUpdateOwned(material.id, parseInt(e.target.value) || 0)}
-                  className="w-16 px-1.5 py-0.5 text-center font-mono text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded"
-                />
-                <button
-                  type="button"
-                  onClick={() => onUpdateOwned(material.id, material.totalRequired)}
-                  className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
-                >
-                  <Check className="w-3.5 h-3.5 inline" />
-                </button>
+            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="p-1.5 bg-slate-50 rounded">
+                <span className="text-[10px] text-slate-400 block">Required</span>
+                <span className="font-mono font-bold text-slate-800">{mat.totalRequired}</span>
+              </div>
+              <div className="p-1.5 bg-slate-50 rounded">
+                <span className="text-[10px] text-slate-400 block">Owned</span>
+                <span className="font-mono font-bold text-slate-800">{mat.owned}</span>
+              </div>
+              <div className="p-1.5 bg-slate-50 rounded">
+                <span className="text-[10px] text-slate-400 block">Stacks</span>
+                <span className="font-mono text-slate-600 text-[11px]">{mat.quantity.stacksFormatted}</span>
               </div>
             </div>
           </div>

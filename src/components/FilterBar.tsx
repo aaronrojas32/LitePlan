@@ -44,7 +44,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition cursor-pointer ${
               isActive
                 ? 'bg-blue-600 text-white shadow-2xs'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >
             <span>{f.label}</span>
@@ -52,7 +52,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
                 isActive
                   ? 'bg-blue-700 text-white'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                  : 'bg-slate-100 text-slate-600'
               }`}
             >
               {f.count}

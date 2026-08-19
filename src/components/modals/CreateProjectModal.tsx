@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, FileText, Upload, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { SAMPLE_NETHER_PORTAL_TXT, SAMPLE_NETHER_PORTAL_CSV, SAMPLE_REDSTONE_FACTORY_CSV } from '../../data/sampleData';
 import { parseLitematicaFile } from '../../lib/parser';
@@ -20,6 +20,17 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   const [filename, setFilename] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setName('');
+      setDescription('');
+      setFileContent('');
+      setFilename('');
+      setIsProcessing(false);
+      setIsDragging(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -81,6 +92,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         description.trim()
       );
       onClose();
+    } catch (err) {
+      console.error('Error submitting project creation:', err);
     } finally {
       setIsProcessing(false);
     }

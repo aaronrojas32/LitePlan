@@ -43,14 +43,14 @@ export const CraftingList: React.FC<CraftingListProps> = ({ craftingSteps }) => 
   const totalCraftOperations = craftingSteps.reduce((acc, s) => acc + s.craftsNeeded, 0);
 
   return (
-    <div className="w-full bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-xs text-xs">
+    <div className="w-full bg-white rounded-xl border border-slate-200 p-6 space-y-5 shadow-xs text-xs">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+          <h2 className="text-base font-bold text-slate-900 tracking-tight">
             Crafting Operations & Manufacturing
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+          <p className="text-slate-500 text-xs mt-0.5">
             {craftingSteps.length} recipe operations • {totalCraftOperations.toLocaleString()} total crafts needed
           </p>
         </div>
@@ -58,7 +58,7 @@ export const CraftingList: React.FC<CraftingListProps> = ({ craftingSteps }) => 
         <button
           type="button"
           onClick={handleCopy}
-          className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 font-semibold shadow-2xs transition flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+          className="px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold shadow-2xs transition flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
         >
           {isCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-500" />}
           <span>{isCopied ? 'Copied Operations!' : 'Copy Operations'}</span>
@@ -77,8 +77,8 @@ export const CraftingList: React.FC<CraftingListProps> = ({ craftingSteps }) => 
               key={step.outputItemId}
               className={`rounded-xl border transition ${
                 isDone
-                  ? 'bg-slate-50 dark:bg-slate-850/40 border-slate-200 dark:border-slate-800 opacity-60'
-                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                  ? 'bg-slate-50/70 border-slate-200 opacity-60'
+                  : 'bg-white border-slate-200 hover:border-slate-300'
               }`}
             >
               <div className="p-3.5 flex items-center justify-between gap-3">
@@ -90,74 +90,81 @@ export const CraftingList: React.FC<CraftingListProps> = ({ craftingSteps }) => 
                     className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 cursor-pointer"
                   />
 
-                  <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-0.5 shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center p-0.5 shrink-0">
                     <ItemIcon itemId={step.outputItemId} size={28} />
                   </div>
 
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className={`font-bold text-sm ${isDone ? 'line-through text-slate-400' : 'text-slate-900 dark:text-slate-100'}`}>
+                      <span className={`font-bold text-sm ${isDone ? 'line-through text-slate-400' : 'text-slate-900'}`}>
                         {step.outputName}
                       </span>
-                      {isSmelting ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900">
-                          <Flame className="w-3 h-3 text-amber-600" /> Furnace Smelting
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-900">
-                          <Hammer className="w-3 h-3 text-blue-600" /> Crafting Table
-                        </span>
-                      )}
+                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border flex items-center gap-1 ${
+                        isSmelting
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-blue-50 text-blue-700 border-blue-200'
+                      }`}>
+                        {isSmelting ? <Flame className="w-2.5 h-2.5" /> : <Hammer className="w-2.5 h-2.5" />}
+                        <span className="capitalize">{step.recipeType}</span>
+                      </span>
                     </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-                      Need: <b>{step.outputQuantity.toLocaleString()}</b> • Total Produced: <b>{step.producedQuantity.toLocaleString()}</b>
+
+                    <div className="flex items-center gap-2 text-slate-500 font-mono text-[11px] mt-0.5">
+                      <span>Target: <b>{step.outputQuantity}</b></span>
+                      <span>•</span>
+                      <span>Crafts: <b className="text-blue-600 font-bold">{step.craftsNeeded}x</b></span>
                       {step.extraQuantity > 0 && (
-                        <span className="text-amber-600 dark:text-amber-400 ml-1 font-semibold">
-                          (+{step.extraQuantity} excess)
-                        </span>
+                        <>
+                          <span>•</span>
+                          <span className="text-amber-600 font-semibold">+{step.extraQuantity} extra surplus</span>
+                        </>
+                      )}
+                      {step.craftableWithRaw !== undefined && (
+                        <>
+                          <span>•</span>
+                          <span className="text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                            {step.craftableWithRaw} craftable with raw
+                          </span>
+                        </>
                       )}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                  <div className="text-right font-mono">
-                    <span className="font-bold text-sm text-slate-900 dark:text-slate-100">
-                      {step.craftsNeeded.toLocaleString()} {step.craftsNeeded === 1 ? 'craft' : 'crafts'}
-                    </span>
-                    <span className="text-[11px] text-slate-400 block font-normal">
-                      ({step.recipe?.output?.quantity || 1}x per craft)
-                    </span>
-                  </div>
-
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => toggleExpand(step.outputItemId)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 cursor-pointer"
                   >
                     {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
-              {/* Expandable ingredients list */}
+              {/* Ingredients List */}
               {isExpanded && (
-                <div className="px-4 pb-4 pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
-                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-                    Ingredients needed:
+                <div className="px-4 pb-3.5 pt-2 border-t border-slate-100 bg-slate-50/50 rounded-b-xl space-y-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                    Ingredients Required ({step.craftsNeeded} crafts):
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                     {step.ingredients.map((ing) => (
                       <div
                         key={ing.itemId}
-                        className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
+                        className="p-2 bg-white rounded-lg border border-slate-200 flex items-center justify-between gap-2"
                       >
                         <div className="flex items-center gap-2">
-                          <ItemIcon itemId={ing.itemId} size={20} />
-                          <span className="font-semibold text-slate-800 dark:text-slate-200">{ing.displayName}</span>
+                          <div className="w-6 h-6 rounded bg-slate-50 border border-slate-200 flex items-center justify-center p-0.5 shrink-0">
+                            <ItemIcon itemId={ing.itemId} size={18} />
+                          </div>
+                          <span className="text-xs font-medium text-slate-800 truncate max-w-[120px]">
+                            {ing.displayName}
+                          </span>
                         </div>
-                        <div className="font-mono text-right text-xs">
-                          <b>{ing.quantity.toLocaleString()}</b> <span className="text-slate-400 text-[11px]">({ing.stacks})</span>
+                        <div className="text-right font-mono text-[11px]">
+                          <span className="font-bold text-slate-900 block">{ing.quantity}</span>
+                          <span className="text-slate-400 text-[10px] block">{ing.stacks}</span>
                         </div>
                       </div>
                     ))}

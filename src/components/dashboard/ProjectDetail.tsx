@@ -90,37 +90,37 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
   return (
     <div className="space-y-5">
       {/* Top Project Navigation Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+      <div className="bg-white rounded-xl p-5 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-3.5">
             <button
               type="button"
               onClick={onBack}
-              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition cursor-pointer"
+              className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition cursor-pointer"
               title="Back to Projects"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
 
-            <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1 shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center p-1 shrink-0">
               <ItemIcon itemId={project.thumbnail || project.materials[0]?.id || 'minecraft:stone'} size={30} />
             </div>
 
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                <h1 className="text-lg font-bold text-slate-900 tracking-tight">
                   {project.name}
                 </h1>
                 <button
                   type="button"
                   onClick={onRename}
-                  className="text-slate-400 hover:text-blue-600 transition"
+                  className="text-slate-400 hover:text-blue-600 transition cursor-pointer"
                   title="Rename"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
                 </button>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+              <p className="text-xs text-slate-500 font-mono mt-0.5">
                 {project.sourceFilename || 'Litematica'} • <b>{project.summary.totalBlocks.toLocaleString()}</b> blocks • <b>{project.materials.length}</b> build materials
               </p>
             </div>
@@ -131,7 +131,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
             <button
               type="button"
               onClick={() => setIsExportOpen(true)}
-              className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 text-xs font-semibold shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5 text-blue-600" />
               <span>Export</span>
@@ -140,7 +140,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
             <button
               type="button"
               onClick={onDuplicate}
-              className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 text-xs font-semibold shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
               title="Duplicate"
             >
               <Copy className="w-3.5 h-3.5 text-slate-500" />
@@ -150,7 +150,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
             <button
               type="button"
               onClick={onDelete}
-              className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition cursor-pointer"
+              className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition cursor-pointer"
               title="Delete Project"
             >
               <Trash2 className="w-4 h-4" />
@@ -158,12 +158,12 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
           </div>
         </div>
 
-        {/* Gathering Progress Bar (Based on Build Objects) */}
+        {/* Gathering Progress Bar (Based exclusively on Build Objects) */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs font-mono">
             <div className="flex items-center gap-2">
               <span className="text-slate-500 font-sans font-medium">Build Progress:</span>
-              <span className="font-bold text-slate-900 dark:text-slate-100">
+              <span className="font-bold text-slate-900">
                 {project.progress.ownedBlocks.toLocaleString()} / {project.progress.totalBlocks.toLocaleString()} blocks ({project.progress.percentage}%)
               </span>
             </div>
@@ -173,9 +173,9 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
             </span>
           </div>
 
-          <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
+          <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
             <div
-              className="bg-emerald-600 dark:bg-emerald-500 h-full rounded-full transition-all duration-300"
+              className="bg-emerald-600 h-full rounded-full transition-all duration-300"
               style={{ width: `${Math.max(project.progress.percentage, 1)}%` }}
             ></div>
           </div>
@@ -183,7 +183,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
       </div>
 
       {/* Tabs Navigation Bar with Distinct Names */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-2">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
           {[
             { id: 'materials' as const, label: 'Build Objects', icon: Boxes, count: project.materials.length },
@@ -203,14 +203,14 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
                 {tab.count !== undefined && (
                   <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
-                    isActive ? 'bg-blue-700 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                    isActive ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600'
                   }`}>
                     {tab.count}
                   </span>

@@ -26,7 +26,6 @@ export const LogoMark: React.FC<{ size?: number; className?: string }> = ({
       <path
         d="M18 3L32 10.5L18 18L4 10.5L18 3Z"
         fill="#3B82F6"
-        className="dark:fill-blue-500"
       />
       {/* Top Facet Grid Overlay (Planning Blueprint) */}
       <path
@@ -34,35 +33,33 @@ export const LogoMark: React.FC<{ size?: number; className?: string }> = ({
         stroke="#93C5FD"
         strokeWidth="1.2"
         strokeLinecap="round"
-        opacity="0.8"
+        opacity="0.85"
       />
 
       {/* Left Facet (Primary Deep Blue) */}
       <path
         d="M4 10.5V25.5L18 33V18L4 10.5Z"
         fill="#1D4ED8"
-        className="dark:fill-blue-700"
       />
       {/* Left Facet subtle sub-layer line */}
       <path
         d="M4 18L18 25.5"
         stroke="#60A5FA"
         strokeWidth="1"
-        opacity="0.4"
+        opacity="0.5"
       />
 
       {/* Right Facet (Minecraft Emerald Accent) */}
       <path
         d="M18 18V33L32 25.5V10.5L18 18Z"
         fill="#10B981"
-        className="dark:fill-emerald-500"
       />
       {/* Right Facet subtle sub-layer line */}
       <path
         d="M18 25.5L32 18"
         stroke="#6EE7B7"
         strokeWidth="1"
-        opacity="0.5"
+        opacity="0.6"
       />
     </svg>
   );
@@ -79,10 +76,10 @@ export const Logo: React.FC<LogoProps> = ({
       <LogoMark size={size} />
       {showText && (
         <div className="flex items-baseline gap-1.5">
-          <span className={`font-extrabold tracking-tight text-slate-900 dark:text-slate-100 text-base leading-none ${textClassName}`}>
-            LitePlan
+          <span className={`text-lg font-black tracking-tight text-slate-900 leading-none ${textClassName}`}>
+            Lite<span className="text-blue-600">Plan</span>
           </span>
-          <span className="text-[10px] font-bold tracking-wider uppercase text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 px-1.5 py-0.2 rounded border border-emerald-200 dark:border-emerald-800">
+          <span className="text-[10px] font-extrabold tracking-wider uppercase text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">
             MC
           </span>
         </div>

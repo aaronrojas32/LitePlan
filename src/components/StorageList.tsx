@@ -33,14 +33,14 @@ export const StorageList: React.FC<StorageListProps> = ({ materials }) => {
   };
 
   return (
-    <div className="w-full bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-xs text-xs">
+    <div className="w-full bg-white rounded-xl border border-slate-200 p-6 space-y-5 shadow-xs text-xs">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+          <h2 className="text-base font-bold text-slate-900 tracking-tight">
             Storage & Container Allocation
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+          <p className="text-slate-500 text-xs mt-0.5">
             Physical containers required to store all required materials (27 stacks per Shulker Box, 54 stacks per Double Chest)
           </p>
         </div>
@@ -48,7 +48,7 @@ export const StorageList: React.FC<StorageListProps> = ({ materials }) => {
         <button
           type="button"
           onClick={handleCopyStorage}
-          className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 font-semibold shadow-2xs transition flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+          className="px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold shadow-2xs transition flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
         >
           {isCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-500" />}
           <span>{isCopied ? 'Copied Storage List!' : 'Copy Storage List'}</span>
@@ -57,76 +57,91 @@ export const StorageList: React.FC<StorageListProps> = ({ materials }) => {
 
       {/* Summary Container Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="p-4 bg-emerald-50/60 dark:bg-emerald-950/40 rounded-xl border border-emerald-200/80 dark:border-emerald-900/60 flex items-center justify-between">
+        <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
-              <Box className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200 block uppercase tracking-wider">
-                Shulker Boxes Required
-              </span>
-              <span className="text-[11px] text-emerald-700 dark:text-emerald-400">
-                Allocating dedicated box per item type
-              </span>
-            </div>
-          </div>
-          <div className="text-2xl font-bold font-mono text-emerald-950 dark:text-emerald-200">
-            {totalShulkers} {totalShulkers === 1 ? 'Box' : 'Boxes'}
-          </div>
-        </div>
-
-        <div className="p-4 bg-blue-50/60 dark:bg-blue-950/40 rounded-xl border border-blue-200/80 dark:border-blue-900/60 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/80 text-blue-700 dark:text-blue-300 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-white border border-emerald-200 flex items-center justify-center text-emerald-600">
               <Archive className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs font-bold text-blue-950 dark:text-blue-200 block uppercase tracking-wider">
-                Double Chests Required
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 block">
+                Total Shulker Boxes
               </span>
-              <span className="text-[11px] text-blue-700 dark:text-blue-400">
-                Allocating dedicated chest per item type
+              <span className="text-xs text-emerald-600 font-mono">
+                27 slots per box
               </span>
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-blue-950 dark:text-blue-200">
-            {totalDoubleChests} {totalDoubleChests === 1 ? 'Chest' : 'Chests'}
+          <div className="text-2xl font-extrabold text-emerald-700 font-mono">
+            {totalShulkers} <span className="text-xs font-sans font-medium text-emerald-600">boxes</span>
+          </div>
+        </div>
+
+        <div className="p-4 bg-blue-50 rounded-xl border border-blue-200 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-white border border-blue-200 flex items-center justify-center text-blue-600">
+              <Box className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-800 block">
+                Total Double Chests
+              </span>
+              <span className="text-xs text-blue-600 font-mono">
+                54 slots per double chest
+              </span>
+            </div>
+          </div>
+          <div className="text-2xl font-extrabold text-blue-700 font-mono">
+            {totalDoubleChests} <span className="text-xs font-sans font-medium text-blue-600">chests</span>
           </div>
         </div>
       </div>
 
-      {/* Grid of Items and their storage breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {storageItems.map((item) => (
-          <div
-            key={item.id}
-            className="p-3.5 bg-slate-50 dark:bg-slate-850 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 text-xs"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1 shrink-0">
-                <ItemIcon itemId={item.id} size={26} />
-              </div>
-              <div>
-                <span className="font-bold text-sm text-slate-900 dark:text-slate-100 block">
-                  {item.displayName}
-                </span>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                  {item.stacksRequired.formatted}
-                </span>
-              </div>
-            </div>
-
-            <div className="text-right font-mono">
-              <div className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                {item.totalRequired.toLocaleString()} blocks
-              </div>
-              <div className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">
-                {item.storage.shulkerStorageFormatted}
-              </div>
-            </div>
-          </div>
-        ))}
+      {/* Item Storage Breakdown Table */}
+      <div className="rounded-xl border border-slate-200 overflow-hidden">
+        <table className="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold select-none text-[11px] uppercase tracking-wider">
+              <th className="py-3 px-3.5 w-12 text-center">Icon</th>
+              <th className="py-3 px-3.5">Material</th>
+              <th className="py-3 px-3.5 text-right font-mono">Total Items</th>
+              <th className="py-3 px-3.5 font-mono">Stacks</th>
+              <th className="py-3 px-3.5 font-mono text-center">Shulkers</th>
+              <th className="py-3 px-3.5 text-slate-500 font-medium">Storage Requirement</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {storageItems.map((mat) => (
+              <tr key={mat.id} className="hover:bg-slate-50/70 transition">
+                <td className="py-2.5 px-3.5 text-center">
+                  <div className="w-7 h-7 rounded bg-slate-50 border border-slate-200 flex items-center justify-center p-0.5 mx-auto">
+                    <ItemIcon itemId={mat.id} size={22} />
+                  </div>
+                </td>
+                <td className="py-2.5 px-3.5 font-bold text-slate-900">
+                  {mat.displayName}
+                </td>
+                <td className="py-2.5 px-3.5 text-right font-mono font-bold text-slate-900">
+                  {mat.totalRequired.toLocaleString()}
+                </td>
+                <td className="py-2.5 px-3.5 font-mono text-slate-600 text-xs">
+                  {mat.quantity.stacksFormatted}
+                </td>
+                <td className="py-2.5 px-3.5 text-center font-mono font-bold">
+                  {mat.storage.shulkersRequired > 0 ? (
+                    <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      {mat.storage.shulkersRequired}
+                    </span>
+                  ) : (
+                    <span className="text-slate-400">-</span>
+                  )}
+                </td>
+                <td className="py-2.5 px-3.5 text-slate-600 font-mono text-xs">
+                  {mat.storage.shulkerStorageFormatted}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

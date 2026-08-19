@@ -11,19 +11,19 @@ interface MaterialSummaryProps {
 
 export const MaterialSummary: React.FC<MaterialSummaryProps> = ({ summary, rawMaterials }) => {
   return (
-    <div className="w-full space-y-5">
+    <div className="w-full space-y-5 text-xs">
       {/* 4 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Blocks */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/80 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+        <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0">
             <Layers className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               Total Blocks
             </span>
-            <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono tracking-tight">
+            <div className="text-2xl font-bold text-slate-900 font-mono tracking-tight">
               {summary.totalBlocks.toLocaleString()}
             </div>
             <span className="text-xs text-slate-400">
@@ -33,15 +33,15 @@ export const MaterialSummary: React.FC<MaterialSummaryProps> = ({ summary, rawMa
         </div>
 
         {/* Total Stacks */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800/80 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+        <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
             <Boxes className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               Total Stacks
             </span>
-            <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono tracking-tight">
+            <div className="text-2xl font-bold text-slate-900 font-mono tracking-tight">
               {summary.totalStacks.toLocaleString()}
             </div>
             <span className="text-xs text-slate-400">
@@ -51,15 +51,15 @@ export const MaterialSummary: React.FC<MaterialSummaryProps> = ({ summary, rawMa
         </div>
 
         {/* Shulkers Required */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-100 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+        <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shrink-0">
             <Archive className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               Storage Required
             </span>
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 font-mono tracking-tight">
+            <div className="text-2xl font-bold text-emerald-600 font-mono tracking-tight">
               {summary.shulkersRequired} {summary.shulkersRequired === 1 ? 'Shulker' : 'Shulkers'}
             </div>
             <span className="text-xs text-slate-400 font-mono">
@@ -69,15 +69,15 @@ export const MaterialSummary: React.FC<MaterialSummaryProps> = ({ summary, rawMa
         </div>
 
         {/* Crafting Operations */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/80 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+        <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
             <Hammer className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               Crafting Needed
             </span>
-            <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono tracking-tight">
+            <div className="text-2xl font-bold text-slate-900 font-mono tracking-tight">
               {summary.totalCraftingOperations.toLocaleString()} crafts
             </div>
             <span className="text-xs text-slate-400">
@@ -89,32 +89,36 @@ export const MaterialSummary: React.FC<MaterialSummaryProps> = ({ summary, rawMa
 
       {/* Raw Materials Bar */}
       {rawMaterials.length > 0 && (
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+        <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Pickaxe className="w-4 h-4 text-emerald-600" />
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
                 Base Raw Resources to Farm ({rawMaterials.length})
               </h3>
             </div>
             <span className="text-xs text-slate-400">
-              Recursive raw material decomposition
+              Raw materials to mine, chop, and harvest
             </span>
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
             {rawMaterials.map((raw) => (
               <div
                 key={raw.itemId}
-                className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs shrink-0"
+                className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2.5"
               >
-                <ItemIcon itemId={raw.itemId} size={20} />
-                <span className="text-slate-800 dark:text-slate-200 font-semibold">
-                  {raw.displayName}
-                </span>
-                <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
-                  {raw.quantity.toLocaleString()}
-                </span>
+                <div className="w-8 h-8 rounded bg-white border border-slate-200 flex items-center justify-center p-0.5 shrink-0">
+                  <ItemIcon itemId={raw.itemId} size={22} />
+                </div>
+                <div className="min-w-0">
+                  <span className="font-bold text-slate-900 block truncate text-xs">
+                    {raw.displayName}
+                  </span>
+                  <span className="font-mono text-slate-500 text-[11px] font-semibold">
+                    {raw.quantity.toLocaleString()}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
