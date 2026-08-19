@@ -31,7 +31,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs text-xs">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm text-xs">
       <div className="w-full max-w-sm bg-white rounded-xl p-5 shadow-xl border border-slate-200 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-900">

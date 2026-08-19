@@ -50,12 +50,60 @@ let inMemoryProjects: Project[] = [];
 let inMemorySettings: AppSettings = DEFAULT_SETTINGS;
 
 function migrateProject(p: any): Project {
+  const materials = Array.isArray(p.materials) ? p.materials : [];
+  const rawMaterials = Array.isArray(p.rawMaterials) ? p.rawMaterials : calculateRawMaterials(materials);
+  const craftingSteps = Array.isArray(p.craftingSteps) ? p.craftingSteps : generateCraftingList(materials);
+  const craftingCompletedMap = p.craftingCompletedMap || {};
+
+  const progress = p.progress && typeof p.progress.percentage === 'number'
+    ? p.progress
+    : calculateProjectProgress(materials, craftingSteps, craftingCompletedMap);
+
+  const totalBlocks = progress.totalBlocks || materials.reduce((acc: number, m: any) => acc + (m.totalRequired || 0), 0);
+  const totalOwned = progress.ownedBlocks || materials.reduce((acc: number, m: any) => acc + (m.owned || 0), 0);
+  const totalMissing = progress.missingBlocks || Math.max(0, totalBlocks - totalOwned);
+
+  const summary = p.summary && typeof p.summary.totalBlocks === 'number'
+    ? p.summary
+    : {
+        totalUniqueMaterials: materials.length,
+        totalBlocks,
+        totalMissing,
+        totalOwned,
+        totalAvailable: totalOwned,
+        craftableCount: materials.filter((m: any) => m.craftable).length,
+        rawMaterialCount: rawMaterials.length,
+        totalStacks: Math.ceil(totalBlocks / 64),
+        totalCraftingOperations: craftingSteps.reduce((acc: number, s: any) => acc + (s.craftsNeeded || 0), 0),
+        uniqueRecipesCount: craftingSteps.length,
+        equivalentStorageFormatted: `${Math.ceil(totalBlocks / (27 * 64))} Shulkers`,
+        shulkerStorageFormatted: `${Math.ceil(totalBlocks / (27 * 64))} Shulkers`,
+        doubleChestStorageFormatted: `${Math.ceil(totalBlocks / (54 * 64))} Double Chests`,
+        shulkersRequired: Math.ceil(totalBlocks / (27 * 64)),
+        doubleChestsRequired: Math.ceil(totalBlocks / (54 * 64)),
+      };
+
   return {
     ...p,
+    name: p.name || 'Untitled Build',
+    description: p.description || '',
+    thumbnail: p.thumbnail || (materials[0]?.id || 'minecraft:stone'),
+    sourceFilename: p.sourceFilename || 'materials.csv',
+    sourceFormat: p.sourceFormat || 'csv',
+    rawRowCount: p.rawRowCount || materials.length,
+    parsedRows: Array.isArray(p.parsedRows) ? p.parsedRows : [],
+    materials,
+    unrecognized: Array.isArray(p.unrecognized) ? p.unrecognized : [],
+    rawMaterials,
+    craftingSteps,
     ownedMap: p.ownedMap || {},
     rawOwnedMap: p.rawOwnedMap || {},
     gatheringCompletedMap: p.gatheringCompletedMap || {},
-    craftingCompletedMap: p.craftingCompletedMap || {},
+    craftingCompletedMap,
+    summary,
+    progress,
+    createdAt: p.createdAt || new Date().toISOString(),
+    updatedAt: p.updatedAt || new Date().toISOString(),
   };
 }
 
