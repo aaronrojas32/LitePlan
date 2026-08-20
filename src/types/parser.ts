@@ -3,6 +3,15 @@ import { RawMaterialRequirement, CraftingStep } from './recipe';
 
 export type FileFormat = 'csv' | 'txt_ascii' | 'tsv' | 'unknown';
 
+export interface ValidationResult {
+  isValid: boolean;
+  format: FileFormat;
+  error?: string;
+  warning?: string;
+  detectedRowCount: number;
+  previewMaterialsCount: number;
+}
+
 export interface ParseResult {
   filename: string;
   format: FileFormat;
@@ -13,6 +22,7 @@ export interface ParseResult {
   rawMaterials: RawMaterialRequirement[];
   craftingSteps: CraftingStep[];
   summary: BuildSummary;
+  validation?: ValidationResult;
 }
 
 export interface BuildSummary {

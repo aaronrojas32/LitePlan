@@ -48,7 +48,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               Minecraft Material Planner
             </h1>
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-              v2.6
+              v2.7
             </span>
           </div>
           <p className="text-sm text-slate-500">

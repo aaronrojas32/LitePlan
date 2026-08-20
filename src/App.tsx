@@ -90,7 +90,9 @@ function AppContent() {
       console.log('[LitePlan Debug] Navigation switched to detail view for:', newProj.id);
     } catch (err: any) {
       console.error('[LitePlan Debug] Error creating project:', err);
-      showToast('Failed to create project from file', 'error');
+      const msg = err?.message || 'Failed to create project from file';
+      showToast(msg, 'error');
+      throw err;
     }
   };
 
@@ -374,7 +376,7 @@ function AppContent() {
             <span>Minecraft Build Material Planner</span>
             <span className="text-slate-300">•</span>
             <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-600 border border-slate-200">
-              v2.6.0 (MC 1.21)
+              v2.7.0 (MC 1.21)
             </span>
           </div>
 
