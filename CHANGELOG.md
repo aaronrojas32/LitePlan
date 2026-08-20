@@ -2,6 +2,27 @@
 
 All notable changes to **LitePlan** are documented in this file.
 
+## [2.7.0] - 2026-08-20
+
+### Added
+- **Multi-Tier Recursive Recipe Resolution Engine**:
+  - Full support for Minecraft 1.21 recipes (Wood, Stone, Metal Ores, Redstone, Decoration, Utility).
+  - 4-Tier classification: `BUILD` -> `INTERMEDIATE` / `PROCESSING` -> `RAW`.
+  - Integer craft math (`Math.ceil`), surplus production tracking, and cycle detection.
+- **Recipe Inspector Tool**:
+  - Interactive recipe database explorer accessible via Settings modal (`⚙️`).
+  - View linear resolution paths and full recursive tree decompositions for any Minecraft item.
+- **Explicit File Validation and Diagnostic Handling (Closes #22)**:
+  - Added `validateLitematicaContent` with clear error explanations for empty files, invalid formats (JSON/HTML), and missing required columns (`Item`, `Total`).
+  - Real-time visual feedback badges in `CreateProjectModal` (valid vs. invalid status cards with block & material counters).
+- **SEO & Search Indexability**:
+  - Full Open Graph and Twitter Cards metadata in `index.html`.
+  - Generated `robots.txt` and `sitemap.xml` in `/public`.
+  - Added 1200x630 social preview image (`og-image.png`).
+- **Community & Contributor Templates**:
+  - Professional GitHub Issue (`bug_report.md`, `feature_request.md`) and PR templates with contributor call-to-action sections.
+  - 20 structured issues created and labeled on GitHub for community roadmap.
+
 ## [2.6.0] - 2026-08-20
 
 ### Added
