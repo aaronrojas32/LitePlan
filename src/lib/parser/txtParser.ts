@@ -1,7 +1,7 @@
 import { ParsedMaterialRow } from '../../types/material';
 
 /**
- * Checks if a line is an ASCII border like `+----+----+` or `|---...---|`
+ * Checks if a line is an ASCII table border separator (e.g. `+----+----+` or `|---...---|`).
  */
 function isAsciiBorder(line: string): boolean {
   const trimmed = line.trim();
@@ -11,7 +11,7 @@ function isAsciiBorder(line: string): boolean {
 }
 
 /**
- * Extracts column cells from a pipe-separated ASCII line: `| Col1 | Col2 | Col3 |`
+ * Extracts column cells from a pipe-separated ASCII line: `| Col1 | Col2 | Col3 |`.
  */
 function extractPipeColumns(line: string): string[] {
   const trimmed = line.trim();
@@ -19,13 +19,13 @@ function extractPipeColumns(line: string): string[] {
     return [];
   }
 
-  // Remove first and last pipe
+  // Remove outermost leading and trailing pipe delimiters
   const content = trimmed.substring(1, trimmed.length - 1);
   return content.split('|').map(s => s.trim());
 }
 
 /**
- * Parses numeric values handling thousand separators
+ * Parses integer numeric values and removes thousands separators.
  */
 function parseQuantity(val: string): number {
   if (!val) return 0;
@@ -34,6 +34,10 @@ function parseQuantity(val: string): number {
   return isNaN(parsed) ? 0 : parsed;
 }
 
+/**
+ * Parses Litematica ASCII table `.txt` export format.
+ * Ignores border dividers and resolves column indices dynamically from table headers.
+ */
 export function parseAsciiTable(content: string): ParsedMaterialRow[] {
   const lines = content.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
   if (lines.length === 0) return [];
@@ -48,7 +52,7 @@ export function parseAsciiTable(content: string): ParsedMaterialRow[] {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Skip decorative borders
+    // Skip decorative box-drawing borders
     if (isAsciiBorder(line)) {
       continue;
     }
@@ -56,53 +60,61 @@ export function parseAsciiTable(content: string): ParsedMaterialRow[] {
     const cols = extractPipeColumns(line);
     if (cols.length === 0) continue;
 
-    // Single column usually means table title e.g. "| Lista de Materiales para el esquema ... |"
+    // Single column lines represent table titles or comments
     if (cols.length === 1) {
       continue;
     }
 
-    const lowerCols = cols.map(c => c.toLowerCase());
-
-    // Check if this is a header row e.g. "| Item | Total | Missing | Available |"
-    const isHeader = lowerCols.some(c =>
-      ['item', 'material', 'bloque', 'name', 'nombre'].includes(c)
-    ) && lowerCols.some(c =>
-      ['total', 'missing', 'available', 'faltan', 'disponible'].includes(c)
-    );
+    // Inspect header row to calibrate column positions
+    const isHeader = cols.some(col => {
+      const lower = col.toLowerCase();
+      return (
+        lower.includes('item') ||
+        lower.includes('material') ||
+        lower.includes('total') ||
+        lower.includes('missing') ||
+        lower.includes('falta') ||
+        lower.includes('available') ||
+        lower.includes('disponible')
+      );
+    });
 
     if (isHeader) {
-      lowerCols.forEach((col, idx) => {
-        if (col.includes('item') || col.includes('material') || col.includes('name') || col.includes('bloque')) {
+      cols.forEach((col, idx) => {
+        const lower = col.toLowerCase();
+        if (lower.includes('item') || lower.includes('material') || lower.includes('nombre')) {
           itemCol = idx;
-        } else if (col.includes('total') || col.includes('required') || col.includes('requerido')) {
+        } else if (lower.includes('total')) {
           totalCol = idx;
-        } else if (col.includes('missing') || col.includes('falta')) {
+        } else if (lower.includes('missing') || lower.includes('falta') || lower.includes('faltante')) {
           missingCol = idx;
-        } else if (col.includes('available') || col.includes('disponible')) {
+        } else if (lower.includes('available') || lower.includes('disponible') || lower.includes('tengo')) {
           availableCol = idx;
         }
       });
       continue;
     }
 
-    // Process data row
+    // Extract item row data
     const rawName = cols[itemCol] || '';
-    if (!rawName) continue;
-
-    const total = parseQuantity(cols[totalCol]);
-    const missing = missingCol < cols.length ? parseQuantity(cols[missingCol]) : total;
-    const available = availableCol < cols.length ? parseQuantity(cols[availableCol]) : Math.max(0, total - missing);
-
-    // Only add if it has valid data (avoiding accidental bottom headers or separators)
-    if (total > 0 || (cols.length > 1 && !isNaN(parseInt(cols[1], 10)))) {
-      rows.push({
-        rawName,
-        total: total || missing,
-        missing: missing !== undefined ? missing : total,
-        available,
-        lineNumber: i + 1,
-      });
+    if (!rawName || rawName === 'Item' || rawName === 'Material' || rawName === 'Total') {
+      continue;
     }
+
+    const total = parseQuantity(cols[totalCol] || '0');
+    const missing = parseQuantity(cols[missingCol] || '0');
+    const available = parseQuantity(cols[availableCol] || '0');
+    const finalTotal = total > 0 ? total : (missing + available);
+
+    if (finalTotal <= 0) continue;
+
+    rows.push({
+      rawName,
+      total: finalTotal,
+      missing,
+      available,
+      lineNumber: i,
+    });
   }
 
   return rows;

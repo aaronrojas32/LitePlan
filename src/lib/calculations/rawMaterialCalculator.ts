@@ -5,7 +5,8 @@ import { getRecipeForItem } from '../recipes/recipeDatabase';
 import { calculateStacks, calculateShulkerStorage } from '../minecraft/storageCalculator';
 
 /**
- * Recursively accumulates leaf raw materials needed for a specific item quantity
+ * Recursively traverses crafting recipe dependencies and accumulates leaf raw materials.
+ * Handles intermediate crafts with cycle detection.
  */
 function accumulateRawMaterials(
   itemId: string,
@@ -22,7 +23,7 @@ function accumulateRawMaterials(
 
   const recipe = getRecipeForItem(itemId);
 
-  // If there's no recipe or we visited this in circular recursion, treat it as a raw material
+  // If there is no recipe or circular recursion is detected, treat as a base raw material
   if (!recipe || visited.has(itemId)) {
     const existing = rawMap.get(itemId);
     if (existing) {
@@ -47,6 +48,7 @@ function accumulateRawMaterials(
   const currentVisited = new Set(visited).add(itemId);
   const craftCount = Math.ceil(quantity / recipe.output.quantity);
 
+  // Recursively process each ingredient for the total craft cycles
   for (const ing of recipe.ingredients) {
     const requiredForIngredient = craftCount * ing.quantity;
     accumulateRawMaterials(
@@ -61,8 +63,8 @@ function accumulateRawMaterials(
 }
 
 /**
- * Calculates total global raw materials required for all materials in the build,
- * taking into account the user's raw inventory (rawOwnedMap).
+ * Calculates global raw harvestable material requirements across all build materials.
+ * Compares total required against user raw inventory (rawOwnedMap).
  */
 export function calculateRawMaterials(
   materials: AnalyzedMaterial[],
@@ -98,15 +100,15 @@ export function calculateRawMaterials(
     const stacksMissing = calculateStacks(missing, stackSize).formatted;
     const storage = calculateShulkerStorage(requiredQuantity, stackSize);
 
-    const usedInList = Array.from(data.usedIn.entries()).map(([targetItemId, itemData]) => ({
+    const usedInList = Array.from(data.usedIn.entries()).map(([targetItemId, val]) => ({
       targetItemId,
-      targetName: itemData.targetName,
-      quantityRequired: itemData.quantityRequired,
+      targetName: val.targetName,
+      quantityRequired: val.quantityRequired,
     }));
 
     results.push({
       itemId,
-      minecraftId: matDef?.minecraftId || itemId,
+      minecraftId: itemId,
       displayName: matDef?.displayNameEs || matDef?.displayNameEn || itemId.replace('minecraft:', ''),
       quantity: requiredQuantity,
       owned,
@@ -114,14 +116,19 @@ export function calculateRawMaterials(
       stacks,
       stacksMissing,
       storage,
-      category: matDef?.category || 'misc',
-      source: matDef?.source || 'Mine / Gather in world',
+      category: matDef?.category || 'nature',
+      source: matDef?.source || 'vanilla',
       usedIn: usedInList,
     });
   }
 
-  // Sort by quantity descending
-  results.sort((a, b) => b.quantity - a.quantity);
+  // Sort by missing amount descending, then by total required descending
+  results.sort((a, b) => {
+    if (b.missing !== a.missing) {
+      return b.missing - a.missing;
+    }
+    return b.quantity - a.quantity;
+  });
 
   return results;
 }

@@ -6,8 +6,9 @@ import { AnalyzedMaterial } from '../../types/material';
 import { calculateRawMaterials } from './rawMaterialCalculator';
 
 /**
- * Calculates the exact integer crafts required for a recipe output
- * e.g. 437 planks with recipe producing 4 planks -> 110 crafts
+ * Calculates the exact integer crafts required for a given target output.
+ * Uses ceiling division since Minecraft crafting requires whole craft actions.
+ * Example: 437 planks with a 4-plank recipe output -> 110 crafts.
  */
 export function calculateCrafts(requiredQuantity: number, recipeOutputQuantity: number): number {
   if (requiredQuantity <= 0 || recipeOutputQuantity <= 0) return 0;
@@ -15,8 +16,8 @@ export function calculateCrafts(requiredQuantity: number, recipeOutputQuantity: 
 }
 
 /**
- * Calculates excess/surplus units produced beyond required amount
- * e.g. 437 required, 110 crafts * 4 = 440 produced -> 3 extra
+ * Calculates excess/surplus units produced beyond the required amount.
+ * Example: 437 required, 110 crafts * 4 = 440 produced -> 3 surplus items.
  */
 export function calculateExcess(requiredQuantity: number, recipeOutputQuantity: number): number {
   if (requiredQuantity <= 0 || recipeOutputQuantity <= 0) return 0;
@@ -26,7 +27,8 @@ export function calculateExcess(requiredQuantity: number, recipeOutputQuantity: 
 }
 
 /**
- * Calculates full craft result including excess and needed ingredients
+ * Calculates complete crafting details including total crafts, actual produced amount,
+ * excess surplus, and the ingredient breakdown for all required craft cycles.
  */
 export function calculateCraftDetails(recipe: Recipe, requiredQuantity: number): CraftCalculationResult {
   const craftsRequired = calculateCrafts(requiredQuantity, recipe.output.quantity);
@@ -55,7 +57,8 @@ export function calculateCraftDetails(recipe: Recipe, requiredQuantity: number):
 }
 
 /**
- * Builds all crafting steps required for build materials, including craftable availability
+ * Builds the crafting operations list for all craftable materials in the build.
+ * Also determines how many units can currently be crafted from available raw materials.
  */
 export function generateCraftingList(
   materials: AnalyzedMaterial[],
@@ -72,7 +75,7 @@ export function generateCraftingList(
 
     const craftDetails = calculateCraftDetails(recipe, mat.totalRequired);
 
-    // Calculate how many could be crafted from available raw materials
+    // Determine bottleneck ingredient to compute maximum immediate crafts possible from raw inventory
     let maxCraftsPossible = Infinity;
     if (recipe.ingredients.length > 0) {
       for (const ing of recipe.ingredients) {
@@ -101,75 +104,65 @@ export function generateCraftingList(
     });
   }
 
-  // Sort by crafts needed descending
+  // Sort by total crafts needed descending
   steps.sort((a, b) => b.craftsNeeded - a.craftsNeeded);
 
   return steps;
 }
 
-export interface SingleItemBreakdown {
-  rawMaterials: Array<{
-    itemId: string;
-    displayName: string;
-    quantity: number;
-    stacks: string;
-  }>;
-}
-
-export function getItemRawBreakdown(itemId: string, quantity: number): SingleItemBreakdown {
-  const q = calculateItemQuantity(quantity, MATERIALS_DATABASE[itemId]?.stackSize || 64);
-  const dummyMaterial: AnalyzedMaterial = {
+/**
+ * Resolves full raw ingredient breakdown for a single item requirement.
+ */
+export function getItemRawBreakdown(itemId: string, quantity: number) {
+  const dummyMat: AnalyzedMaterial = {
     id: itemId,
     minecraftId: itemId,
-    displayName: MATERIALS_DATABASE[itemId]?.displayNameEs || itemId,
-    displayNameEn: MATERIALS_DATABASE[itemId]?.displayNameEn || itemId,
-    displayNameEs: MATERIALS_DATABASE[itemId]?.displayNameEs || itemId,
-    category: 'misc',
-    stackSize: q.stackSize,
+    displayName: itemId,
+    displayNameEn: itemId,
+    displayNameEs: itemId,
+    category: 'building',
+    stackSize: 64,
     totalRequired: quantity,
     owned: 0,
     missing: quantity,
     available: 0,
-    quantity: q,
-    quantityMissing: q,
+    quantity: calculateItemQuantity(quantity, 64),
+    quantityMissing: calculateItemQuantity(quantity, 64),
     stacksRequired: {
-      total: q.items,
-      stackSize: q.stackSize,
-      fullStacks: q.fullStacks,
-      remainder: q.remainder,
-      formatted: q.stacksFormatted,
-      compact: q.stacksCompact,
+      total: quantity,
+      stackSize: 64,
+      fullStacks: Math.floor(quantity / 64),
+      remainder: quantity % 64,
+      formatted: calculateStacks(quantity, 64).formatted,
+      compact: `${Math.floor(quantity / 64)}s ${quantity % 64}`,
     },
     stacksMissing: {
-      total: q.items,
-      stackSize: q.stackSize,
-      fullStacks: q.fullStacks,
-      remainder: q.remainder,
-      formatted: q.stacksFormatted,
-      compact: q.stacksCompact,
+      total: quantity,
+      stackSize: 64,
+      fullStacks: Math.floor(quantity / 64),
+      remainder: quantity % 64,
+      formatted: calculateStacks(quantity, 64).formatted,
+      compact: `${Math.floor(quantity / 64)}s ${quantity % 64}`,
     },
     storage: {
-      items: q.items,
-      stackSize: q.stackSize,
-      fullStacks: q.fullStacks,
-      remainder: q.remainder,
-      shulkersRequired: q.shulkersRequired,
-      doubleChestsRequired: q.doubleChestsRequired,
-      shulkerStorageFormatted: q.shulkerStorageText,
-      doubleChestStorageFormatted: q.doubleChestStorageText,
+      items: quantity,
+      stackSize: 64,
+      fullStacks: Math.floor(quantity / 64),
+      remainder: quantity % 64,
+      shulkersRequired: Math.ceil(quantity / (27 * 64)),
+      doubleChestsRequired: Math.ceil(quantity / (54 * 64)),
+      shulkerStorageFormatted: `${Math.ceil(quantity / (27 * 64))} Shulkers`,
+      doubleChestStorageFormatted: `${Math.ceil(quantity / (54 * 64))} Double Chests`,
     },
     craftable: true,
     isRaw: false,
+    source: 'vanilla',
   };
 
-  const rawList = calculateRawMaterials([dummyMaterial]);
-
+  const rawMaterials = calculateRawMaterials([dummyMat]);
   return {
-    rawMaterials: rawList.map(r => ({
-      itemId: r.itemId,
-      displayName: r.displayName,
-      quantity: r.quantity,
-      stacks: r.stacks,
-    })),
+    itemId,
+    quantity,
+    rawMaterials,
   };
 }

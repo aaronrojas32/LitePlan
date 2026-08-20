@@ -9,6 +9,11 @@ import {
 } from '../minecraft/storageCalculator';
 import { isCraftable, getRecipeForItem } from '../recipes/recipeDatabase';
 
+/**
+ * Aggregates raw parsed material rows into unified material requirements.
+ * Handles deduplication, item normalization (bilingual support), crafting detection,
+ * stack/container breakdown, and summary metric rollups.
+ */
 export function aggregateMaterials(
   rows: ParsedMaterialRow[],
   existingOwnedMap: Record<string, number> = {}
@@ -17,6 +22,7 @@ export function aggregateMaterials(
   unrecognized: UnrecognizedMaterial[];
   summary: BuildSummary;
 } {
+  // Map keyed by standardized Minecraft ID for deduplication
   const aggregatedMap = new Map<string, {
     materialDef: ReturnType<typeof normalizeMaterial>['material'];
     total: number;
@@ -28,6 +34,7 @@ export function aggregateMaterials(
 
   const unrecognizedList: UnrecognizedMaterial[] = [];
 
+  // First pass: normalize and accumulate rows by material ID
   for (const row of rows) {
     if (!row.rawName || !row.rawName.trim()) continue;
 
@@ -63,6 +70,7 @@ export function aggregateMaterials(
     }
   }
 
+  // Second pass: compute quantities, craft metadata, and storage allocations
   const materials: AnalyzedMaterial[] = [];
   let totalBlocks = 0;
   let totalOwned = 0;
@@ -78,14 +86,14 @@ export function aggregateMaterials(
     const craftable = isCraftable(mat.id);
     const stackSize = mat.stackSize || 64;
 
-    // The base source of truth is always integer items/blocks
+    // Use saved owned count if present, otherwise default to file available amount
     const owned = existingOwnedMap[mat.id] !== undefined
       ? Math.max(0, existingOwnedMap[mat.id])
       : Math.max(0, item.available);
 
     const missing = Math.max(0, item.total - owned);
 
-    // Calculate complete representations from the base amount
+    // Compute complete representations from the base integer amounts
     const reqQ = calculateItemQuantity(item.total, stackSize);
     const missQ = calculateItemQuantity(missing, stackSize);
 
@@ -97,6 +105,7 @@ export function aggregateMaterials(
 
     totalSlotsSum += reqQ.stacksRequired;
 
+    // Accumulate unique recipe crafting operations
     if (craftable) {
       const recipe = getRecipeForItem(mat.id);
       if (recipe) {
@@ -153,7 +162,7 @@ export function aggregateMaterials(
     });
   }
 
-  // Sort by missing descending by default, then totalRequired descending
+  // Default sorting: items with remaining missing blocks first, then largest requirement
   materials.sort((a, b) => {
     if (b.missing !== a.missing) {
       return b.missing - a.missing;
@@ -161,6 +170,7 @@ export function aggregateMaterials(
     return b.totalRequired - a.totalRequired;
   });
 
+  // Overall container estimations based on total volume
   const containers = calculateRequiredContainers(totalBlocks, 64);
   const shulkerStorageFormatted = calculateShulkerStorage(totalBlocks, 64);
   const doubleChestStorageFormatted = calculateDoubleChestStorage(totalBlocks, 64);
