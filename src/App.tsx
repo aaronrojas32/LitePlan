@@ -29,7 +29,6 @@ import {
   Menu,
   X,
   Boxes,
-  BookOpen,
 } from 'lucide-react';
 
 type NavView = 'dashboard' | 'projects' | 'detail';
@@ -159,6 +158,7 @@ function AppContent() {
       if (e.key === 'Escape') {
         setIsCreateModalOpen(false);
         setIsSettingsModalOpen(false);
+        setIsInspectorOpen(false);
         setProjectToDelete(null);
         setProjectToRename(null);
         setProjectToExport(null);
@@ -202,15 +202,6 @@ function AppContent() {
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">New Project</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsInspectorOpen(true)}
-              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition cursor-pointer"
-              title="Recipe Inspector (Minecraft 1.21)"
-            >
-              <BookOpen className="w-4 h-4" />
             </button>
 
             <button
@@ -388,6 +379,7 @@ function AppContent() {
           isOpen={isSettingsModalOpen}
           onClose={() => setIsSettingsModalOpen(false)}
           onDataChanged={refreshProjects}
+          onOpenInspector={() => setIsInspectorOpen(true)}
         />
 
         {projectToExport && (

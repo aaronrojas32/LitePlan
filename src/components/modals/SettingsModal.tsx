@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { X, Download, Upload, Trash2, ShieldAlert, RefreshCw, Database } from 'lucide-react';
+import { X, Download, Upload, Trash2, ShieldAlert, RefreshCw, Database, BookOpen } from 'lucide-react';
 import { exportLitePlanBackup, importLitePlanBackup, clearAllData } from '../../lib/storage/projectStore';
 import { useToast } from '../../context/ToastContext';
 
@@ -7,12 +7,14 @@ interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDataChanged: () => void;
+  onOpenInspector?: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
   onDataChanged,
+  onOpenInspector,
 }) => {
   const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -98,8 +100,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </button>
         </div>
 
-        {/* Section 1: Data Backup */}
-        <div className="space-y-2.5">
+        {/* Section 1: Tools & Recipe Explorer */}
+        {onOpenInspector && (
+          <div className="space-y-2">
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+              Recipe Database
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenInspector();
+              }}
+              className="w-full p-3 bg-slate-50 hover:bg-indigo-50/50 border border-slate-200 hover:border-indigo-300 rounded-lg text-left transition cursor-pointer flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2.5">
+                <BookOpen className="w-4 h-4 text-indigo-600" />
+                <div>
+                  <span className="font-semibold text-slate-900 block">Recipe Inspector</span>
+                  <span className="text-[10px] text-slate-500 block">Explore Minecraft 1.21 recipes & trees</span>
+                </div>
+              </div>
+              <span className="text-[11px] font-semibold text-indigo-600">Open &rarr;</span>
+            </button>
+          </div>
+        )}
+
+        {/* Section 2: Data Backup */}
+        <div className="space-y-2.5 pt-2 border-t border-slate-100">
           <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
             Backup & Sync
           </label>
@@ -139,7 +167,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Section 2: Danger Zone */}
+        {/* Section 3: Danger Zone */}
         <div className="space-y-2 pt-3 border-t border-slate-100">
           <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
             Danger Zone

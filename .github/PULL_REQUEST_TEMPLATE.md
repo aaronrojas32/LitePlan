@@ -1,17 +1,26 @@
-## 📝 Description
-Brief summary of the changes introduced in this Pull Request.
+## Summary
 
-## 🎯 Type of Change
-- [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
-- [ ] ✨ New feature (non-breaking change which adds functionality)
-- [ ] 🔨 Refactoring or performance improvement
-- [ ] 📚 Documentation update
-- [ ] 🧪 Tests addition or update
+Brief description of the changes proposed in this pull request.
 
-## 🧪 Testing
+## Changes
+
+- 
+
+## Type of Change
+
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Refactoring / Performance improvement
+- [ ] Documentation update
+- [ ] Tests addition or update
+
+## Verification
+
 - [ ] `npm run typecheck` passes with 0 errors
 - [ ] `npm run test:run` passes with 0 failures
 - [ ] `npm run build` succeeds cleanly
+- [ ] Tested with sample Litematica export (.csv or .txt)
 
-## 📸 Screenshots (if UI changed)
-Attach before / after screenshots if applicable.
+## Screenshots (if applicable)
+
+Attach relevant screenshots for UI changes.

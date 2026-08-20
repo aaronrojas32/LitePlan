@@ -1,31 +1,36 @@
 ---
-name: 🐛 Bug report
-about: Create a report to help us improve LitePlan
+name: Bug Report
+about: Report a defect or unexpected behavior in LitePlan
 title: '[BUG] '
 labels: ['bug']
 assignees: ''
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## Description
 
-**To Reproduce**
-Steps to reproduce the behavior:
+A clear description of the bug.
+
+## Steps to Reproduce
+
 1. Go to '...'
-2. Click on '....'
-3. Import file '....'
+2. Click on '...'
+3. Upload or import '...'
 4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## Expected Behavior
 
-**Litematica File / Sample data (if applicable)**
-Paste a snippet of your `.csv` or `.txt` file or attach it.
+What you expected to happen instead.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## File or Data Sample (if applicable)
 
-**Environment (please complete the following information):**
- - OS: [e.g. Windows 11, macOS, Linux]
- - Browser: [e.g. Chrome, Firefox, Safari, Edge]
- - Version: [e.g. 2.6.0]
+Paste relevant excerpt from your `.csv` or `.txt` Litematica file.
+
+```csv
+Item,Total,Missing,Available
+```
+
+## Environment
+
+- OS: [e.g. Windows 11, macOS, Linux]
+- Browser: [e.g. Chrome, Firefox, Edge, Safari]
+- LitePlan Version: [e.g. 2.6.0]
