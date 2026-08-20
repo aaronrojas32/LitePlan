@@ -19,6 +19,7 @@ import { DeleteConfirmModal } from './components/modals/DeleteConfirmModal';
 import { RenameProjectModal } from './components/modals/RenameProjectModal';
 import { SettingsModal } from './components/modals/SettingsModal';
 import { ExportModal } from './components/ExportModal';
+import { RecipeInspector } from './components/dev/RecipeInspector';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import {
   Plus,
@@ -28,6 +29,7 @@ import {
   Menu,
   X,
   Boxes,
+  BookOpen,
 } from 'lucide-react';
 
 type NavView = 'dashboard' | 'projects' | 'detail';
@@ -39,6 +41,7 @@ function AppContent() {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<NavView>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
 
   // Modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -199,6 +202,15 @@ function AppContent() {
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">New Project</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsInspectorOpen(true)}
+              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition cursor-pointer"
+              title="Recipe Inspector (Minecraft 1.21)"
+            >
+              <BookOpen className="w-4 h-4" />
             </button>
 
             <button
@@ -388,6 +400,11 @@ function AppContent() {
             projectName={projectToExport.name}
           />
         )}
+
+        <RecipeInspector
+          isOpen={isInspectorOpen}
+          onClose={() => setIsInspectorOpen(false)}
+        />
       </ErrorBoundary>
     </div>
   );

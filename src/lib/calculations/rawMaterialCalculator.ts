@@ -1,95 +1,31 @@
 import { AnalyzedMaterial } from '../../types/material';
 import { RawMaterialRequirement } from '../../types/recipe';
 import { MATERIALS_DATABASE } from '../../data/materialsDatabase';
-import { getRecipeForItem } from '../recipes/recipeDatabase';
 import { calculateStacks, calculateShulkerStorage } from '../minecraft/storageCalculator';
+import { processBuildTree } from './recipeResolutionEngine';
 
 /**
- * Recursively traverses crafting recipe dependencies and accumulates leaf raw materials.
- * Handles intermediate crafts with cycle detection.
- */
-function accumulateRawMaterials(
-  itemId: string,
-  quantity: number,
-  targetItemId: string,
-  targetName: string,
-  rawMap: Map<string, {
-    quantity: number;
-    usedIn: Map<string, { targetName: string; quantityRequired: number }>;
-  }>,
-  visited = new Set<string>()
-) {
-  if (quantity <= 0) return;
-
-  const recipe = getRecipeForItem(itemId);
-
-  // If there is no recipe or circular recursion is detected, treat as a base raw material
-  if (!recipe || visited.has(itemId)) {
-    const existing = rawMap.get(itemId);
-    if (existing) {
-      existing.quantity += quantity;
-      const targetExisting = existing.usedIn.get(targetItemId);
-      if (targetExisting) {
-        targetExisting.quantityRequired += quantity;
-      } else {
-        existing.usedIn.set(targetItemId, { targetName, quantityRequired: quantity });
-      }
-    } else {
-      const usedInMap = new Map<string, { targetName: string; quantityRequired: number }>();
-      usedInMap.set(targetItemId, { targetName, quantityRequired: quantity });
-      rawMap.set(itemId, {
-        quantity,
-        usedIn: usedInMap,
-      });
-    }
-    return;
-  }
-
-  const currentVisited = new Set(visited).add(itemId);
-  const craftCount = Math.ceil(quantity / recipe.output.quantity);
-
-  // Recursively process each ingredient for the total craft cycles
-  for (const ing of recipe.ingredients) {
-    const requiredForIngredient = craftCount * ing.quantity;
-    accumulateRawMaterials(
-      ing.itemId,
-      requiredForIngredient,
-      targetItemId,
-      targetName,
-      rawMap,
-      currentVisited
-    );
-  }
-}
-
-/**
- * Calculates global raw harvestable material requirements across all build materials.
+ * Calculates global terminal raw harvestable material requirements across all build materials.
+ * Uses recursive multi-tier recipe tree decomposition down to true terminal leaves (RAW tier).
  * Compares total required against user raw inventory (rawOwnedMap).
  */
 export function calculateRawMaterials(
   materials: AnalyzedMaterial[],
   rawOwnedMap: Record<string, number> = {}
 ): RawMaterialRequirement[] {
-  const rawMap = new Map<string, {
-    quantity: number;
-    usedIn: Map<string, { targetName: string; quantityRequired: number }>;
-  }>();
+  const buildItems = materials
+    .filter((m) => m.totalRequired > 0)
+    .map((m) => ({
+      itemId: m.id,
+      displayName: m.displayNameEs || m.displayNameEn || m.id,
+      quantity: m.totalRequired,
+    }));
 
-  for (const mat of materials) {
-    const targetName = mat.displayNameEs || mat.displayNameEn || mat.id;
-
-    accumulateRawMaterials(
-      mat.id,
-      mat.totalRequired,
-      mat.id,
-      targetName,
-      rawMap
-    );
-  }
+  const { leafRawMaterials } = processBuildTree(buildItems);
 
   const results: RawMaterialRequirement[] = [];
 
-  for (const [itemId, data] of rawMap.entries()) {
+  for (const [itemId, data] of leafRawMaterials.entries()) {
     const matDef = MATERIALS_DATABASE[itemId];
     const stackSize = matDef?.stackSize || 64;
     const requiredQuantity = data.quantity;

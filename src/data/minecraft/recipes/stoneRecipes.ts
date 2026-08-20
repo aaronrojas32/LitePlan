@@ -1,0 +1,516 @@
+import { Recipe } from './types';
+
+// Helper to create stone variant recipes (block -> stairs, slab, wall)
+function createStoneFamily(
+  _name: string,
+  baseBlockId: string,
+  stairsId?: string,
+  slabId?: string,
+  wallId?: string
+): Recipe[] {
+  const recipes: Recipe[] = [];
+
+  if (stairsId) {
+    recipes.push({
+      id: stairsId,
+      type: 'crafting_shaped',
+      gridSize: '3x3',
+      gridPattern: [
+        [baseBlockId, null, null],
+        [baseBlockId, baseBlockId, null],
+        [baseBlockId, baseBlockId, baseBlockId],
+      ],
+      output: { itemId: stairsId, quantity: 4 },
+      ingredients: [{ itemId: baseBlockId, quantity: 6 }],
+      priority: 100,
+      isDefault: true,
+      minecraftVersion: '1.21',
+    });
+    // Stonecutter alternative (1 block -> 1 stairs)
+    recipes.push({
+      id: `${stairsId}_stonecutter`,
+      type: 'stonecutting',
+      output: { itemId: stairsId, quantity: 1 },
+      ingredients: [{ itemId: baseBlockId, quantity: 1 }],
+      priority: 80,
+      isDefault: false,
+      minecraftVersion: '1.21',
+    });
+  }
+
+  if (slabId) {
+    recipes.push({
+      id: slabId,
+      type: 'crafting_shaped',
+      gridSize: '3x3',
+      gridPattern: [
+        [baseBlockId, baseBlockId, baseBlockId],
+        [null, null, null],
+        [null, null, null],
+      ],
+      output: { itemId: slabId, quantity: 6 },
+      ingredients: [{ itemId: baseBlockId, quantity: 3 }],
+      priority: 100,
+      isDefault: true,
+      minecraftVersion: '1.21',
+    });
+    // Stonecutter alternative (1 block -> 2 slabs)
+    recipes.push({
+      id: `${slabId}_stonecutter`,
+      type: 'stonecutting',
+      output: { itemId: slabId, quantity: 2 },
+      ingredients: [{ itemId: baseBlockId, quantity: 1 }],
+      priority: 80,
+      isDefault: false,
+      minecraftVersion: '1.21',
+    });
+  }
+
+  if (wallId) {
+    recipes.push({
+      id: wallId,
+      type: 'crafting_shaped',
+      gridSize: '3x3',
+      gridPattern: [
+        [baseBlockId, baseBlockId, baseBlockId],
+        [baseBlockId, baseBlockId, baseBlockId],
+        [null, null, null],
+      ],
+      output: { itemId: wallId, quantity: 6 },
+      ingredients: [{ itemId: baseBlockId, quantity: 6 }],
+      priority: 100,
+      isDefault: true,
+      minecraftVersion: '1.21',
+    });
+    // Stonecutter alternative (1 block -> 1 wall)
+    recipes.push({
+      id: `${wallId}_stonecutter`,
+      type: 'stonecutting',
+      output: { itemId: wallId, quantity: 1 },
+      ingredients: [{ itemId: baseBlockId, quantity: 1 }],
+      priority: 80,
+      isDefault: false,
+      minecraftVersion: '1.21',
+    });
+  }
+
+  return recipes;
+}
+
+export const STONE_RECIPES: Recipe[] = [
+  // 1. Smelting: Cobblestone -> Stone
+  {
+    id: 'minecraft:stone_from_cobblestone',
+    type: 'smelting',
+    smeltingInput: 'minecraft:cobblestone',
+    output: { itemId: 'minecraft:stone', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:cobblestone', quantity: 1 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+    description: '1x Cobblestone (Smelting) -> 1x Stone',
+  },
+  // 2. Smelting: Stone -> Smooth Stone
+  {
+    id: 'minecraft:smooth_stone_from_stone',
+    type: 'smelting',
+    smeltingInput: 'minecraft:stone',
+    output: { itemId: 'minecraft:smooth_stone', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:stone', quantity: 1 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+    description: '1x Stone (Smelting) -> 1x Smooth Stone',
+  },
+  // 3. 4 Stone -> 4 Stone Bricks
+  {
+    id: 'minecraft:stone_bricks',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    gridPattern: [
+      ['minecraft:stone', 'minecraft:stone'],
+      ['minecraft:stone', 'minecraft:stone'],
+    ],
+    output: { itemId: 'minecraft:stone_bricks', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:stone', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  // 4. Smelting: Stone Bricks -> Cracked Stone Bricks
+  {
+    id: 'minecraft:cracked_stone_bricks',
+    type: 'smelting',
+    smeltingInput: 'minecraft:stone_bricks',
+    output: { itemId: 'minecraft:cracked_stone_bricks', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:stone_bricks', quantity: 1 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  // 5. 2 Stone Brick Slabs -> 1 Chiseled Stone Bricks
+  {
+    id: 'minecraft:chiseled_stone_bricks',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:chiseled_stone_bricks', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:stone_brick_slab', quantity: 2 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  // 6. Polished Stones (Granite, Diorite, Andesite)
+  {
+    id: 'minecraft:polished_granite',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:polished_granite', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:granite', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:polished_diorite',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:polished_diorite', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:diorite', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:polished_andesite',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:polished_andesite', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:andesite', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+
+  // 7. Deepslate Transformations
+  {
+    id: 'minecraft:deepslate_from_cobbled',
+    type: 'smelting',
+    smeltingInput: 'minecraft:cobbled_deepslate',
+    output: { itemId: 'minecraft:deepslate', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:cobbled_deepslate', quantity: 1 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:polished_deepslate',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:polished_deepslate', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:cobbled_deepslate', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:deepslate_bricks',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:deepslate_bricks', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:polished_deepslate', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:deepslate_tiles',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:deepslate_tiles', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:deepslate_bricks', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+
+  // 8. Sandstone & Red Sandstone
+  {
+    id: 'minecraft:sandstone',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:sandstone', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:sand', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:smooth_sandstone',
+    type: 'smelting',
+    smeltingInput: 'minecraft:sandstone',
+    output: { itemId: 'minecraft:smooth_sandstone', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:sandstone', quantity: 1 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:cut_sandstone',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:cut_sandstone', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:sandstone', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:red_sandstone',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:red_sandstone', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:red_sand', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+
+  // 9. Quartz
+  {
+    id: 'minecraft:quartz_block',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:quartz_block', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:quartz', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:smooth_quartz',
+    type: 'smelting',
+    smeltingInput: 'minecraft:quartz_block',
+    output: { itemId: 'minecraft:smooth_quartz', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:quartz_block', quantity: 1 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:quartz_bricks',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:quartz_bricks', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:quartz_block', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:quartz_pillar',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:quartz_pillar', quantity: 2 },
+    ingredients: [{ itemId: 'minecraft:quartz_block', quantity: 2 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+
+  // 10. Prismarine & Ocean Blocks
+  {
+    id: 'minecraft:prismarine',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:prismarine', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:prismarine_shard', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:prismarine_bricks',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    output: { itemId: 'minecraft:prismarine_bricks', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:prismarine_shard', quantity: 9 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:dark_prismarine',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    gridPattern: [
+      ['minecraft:prismarine_shard', 'minecraft:prismarine_shard', 'minecraft:prismarine_shard'],
+      ['minecraft:prismarine_shard', 'minecraft:black_dye', 'minecraft:prismarine_shard'],
+      ['minecraft:prismarine_shard', 'minecraft:prismarine_shard', 'minecraft:prismarine_shard'],
+    ],
+    output: { itemId: 'minecraft:dark_prismarine', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:prismarine_shard', quantity: 8 },
+      { itemId: 'minecraft:black_dye', quantity: 1 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:sea_lantern',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    gridPattern: [
+      ['minecraft:prismarine_shard', 'minecraft:prismarine_crystals', 'minecraft:prismarine_shard'],
+      ['minecraft:prismarine_crystals', 'minecraft:prismarine_crystals', 'minecraft:prismarine_crystals'],
+      ['minecraft:prismarine_shard', 'minecraft:prismarine_crystals', 'minecraft:prismarine_shard'],
+    ],
+    output: { itemId: 'minecraft:sea_lantern', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:prismarine_shard', quantity: 4 },
+      { itemId: 'minecraft:prismarine_crystals', quantity: 5 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+
+  // 11. Clay & Terracotta
+  {
+    id: 'minecraft:clay',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:clay', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:clay_ball', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:terracotta',
+    type: 'smelting',
+    smeltingInput: 'minecraft:clay',
+    output: { itemId: 'minecraft:terracotta', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:clay', quantity: 1 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+
+  // 12. Bricks & Mud Bricks
+  {
+    id: 'minecraft:brick',
+    type: 'smelting',
+    smeltingInput: 'minecraft:clay_ball',
+    output: { itemId: 'minecraft:brick', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:clay_ball', quantity: 1 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:bricks',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:bricks', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:brick', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:packed_mud',
+    type: 'crafting_shapeless',
+    output: { itemId: 'minecraft:packed_mud', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:mud', quantity: 1 },
+      { itemId: 'minecraft:wheat', quantity: 1 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:mud_bricks',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:mud_bricks', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:packed_mud', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+
+  // 13. Nether Bricks & End Stone Bricks
+  {
+    id: 'minecraft:nether_brick',
+    type: 'smelting',
+    smeltingInput: 'minecraft:netherrack',
+    output: { itemId: 'minecraft:nether_brick', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:netherrack', quantity: 1 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:nether_bricks',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:nether_bricks', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:nether_brick', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:red_nether_bricks',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:red_nether_bricks', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:nether_brick', quantity: 2 },
+      { itemId: 'minecraft:nether_wart', quantity: 2 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:end_stone_bricks',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:end_stone_bricks', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:end_stone', quantity: 4 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+
+  // Slabs, Stairs, Walls families
+  ...createStoneFamily('cobblestone', 'minecraft:cobblestone', 'minecraft:cobblestone_stairs', 'minecraft:cobblestone_slab', 'minecraft:cobblestone_wall'),
+  ...createStoneFamily('stone', 'minecraft:stone', 'minecraft:stone_stairs', 'minecraft:stone_slab'),
+  ...createStoneFamily('stone_brick', 'minecraft:stone_bricks', 'minecraft:stone_brick_stairs', 'minecraft:stone_brick_slab', 'minecraft:stone_brick_wall'),
+  ...createStoneFamily('mossy_stone_brick', 'minecraft:mossy_stone_bricks', 'minecraft:mossy_stone_brick_stairs', 'minecraft:mossy_stone_brick_slab', 'minecraft:mossy_stone_brick_wall'),
+  ...createStoneFamily('granite', 'minecraft:granite', 'minecraft:granite_stairs', 'minecraft:granite_slab', 'minecraft:granite_wall'),
+  ...createStoneFamily('polished_granite', 'minecraft:polished_granite', 'minecraft:polished_granite_stairs', 'minecraft:polished_granite_slab'),
+  ...createStoneFamily('diorite', 'minecraft:diorite', 'minecraft:diorite_stairs', 'minecraft:diorite_slab', 'minecraft:diorite_wall'),
+  ...createStoneFamily('polished_diorite', 'minecraft:polished_diorite', 'minecraft:polished_diorite_stairs', 'minecraft:polished_diorite_slab'),
+  ...createStoneFamily('andesite', 'minecraft:andesite', 'minecraft:andesite_stairs', 'minecraft:andesite_slab', 'minecraft:andesite_wall'),
+  ...createStoneFamily('polished_andesite', 'minecraft:polished_andesite', 'minecraft:polished_andesite_stairs', 'minecraft:polished_andesite_slab'),
+  ...createStoneFamily('sandstone', 'minecraft:sandstone', 'minecraft:sandstone_stairs', 'minecraft:sandstone_slab', 'minecraft:sandstone_wall'),
+  ...createStoneFamily('smooth_sandstone', 'minecraft:smooth_sandstone', 'minecraft:smooth_sandstone_stairs', 'minecraft:smooth_sandstone_slab'),
+  ...createStoneFamily('red_sandstone', 'minecraft:red_sandstone', 'minecraft:red_sandstone_stairs', 'minecraft:red_sandstone_slab', 'minecraft:red_sandstone_wall'),
+  ...createStoneFamily('prismarine', 'minecraft:prismarine', 'minecraft:prismarine_stairs', 'minecraft:prismarine_slab', 'minecraft:prismarine_wall'),
+  ...createStoneFamily('prismarine_brick', 'minecraft:prismarine_bricks', 'minecraft:prismarine_brick_stairs', 'minecraft:prismarine_brick_slab'),
+  ...createStoneFamily('dark_prismarine', 'minecraft:dark_prismarine', 'minecraft:dark_prismarine_stairs', 'minecraft:dark_prismarine_slab'),
+  ...createStoneFamily('deepslate_brick', 'minecraft:deepslate_bricks', 'minecraft:deepslate_brick_stairs', 'minecraft:deepslate_brick_slab', 'minecraft:deepslate_brick_wall'),
+  ...createStoneFamily('deepslate_tile', 'minecraft:deepslate_tiles', 'minecraft:deepslate_tile_stairs', 'minecraft:deepslate_tile_slab', 'minecraft:deepslate_tile_wall'),
+  ...createStoneFamily('polished_deepslate', 'minecraft:polished_deepslate', 'minecraft:polished_deepslate_stairs', 'minecraft:polished_deepslate_slab', 'minecraft:polished_deepslate_wall'),
+  ...createStoneFamily('bricks', 'minecraft:bricks', 'minecraft:brick_stairs', 'minecraft:brick_slab', 'minecraft:brick_wall'),
+  ...createStoneFamily('mud_brick', 'minecraft:mud_bricks', 'minecraft:mud_brick_stairs', 'minecraft:mud_brick_slab', 'minecraft:mud_brick_wall'),
+  ...createStoneFamily('nether_brick', 'minecraft:nether_bricks', 'minecraft:nether_brick_stairs', 'minecraft:nether_brick_slab', 'minecraft:nether_brick_wall'),
+  ...createStoneFamily('red_nether_brick', 'minecraft:red_nether_bricks', 'minecraft:red_nether_brick_stairs', 'minecraft:red_nether_brick_slab', 'minecraft:red_nether_brick_wall'),
+  ...createStoneFamily('end_stone_brick', 'minecraft:end_stone_bricks', 'minecraft:end_stone_brick_stairs', 'minecraft:end_stone_brick_slab', 'minecraft:end_stone_brick_wall'),
+  ...createStoneFamily('quartz', 'minecraft:quartz_block', 'minecraft:quartz_stairs', 'minecraft:quartz_slab'),
+  ...createStoneFamily('smooth_quartz', 'minecraft:smooth_quartz', 'minecraft:smooth_quartz_stairs', 'minecraft:smooth_quartz_slab'),
+];

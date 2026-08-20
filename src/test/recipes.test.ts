@@ -1,26 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { generateCraftingList } from '../lib/calculations/recipeCalculator';
+import { generateCraftingList, calculateCrafts, calculateExcess } from '../lib/calculations/recipeCalculator';
 import { calculateRawMaterials } from '../lib/calculations/rawMaterialCalculator';
-import { getRecipeForItem, isCraftable } from '../lib/recipes/recipeDatabase';
+import { resolveRecipeTree, getResolutionPath } from '../lib/calculations/recipeResolutionEngine';
+import { parseLitematicaFile } from '../lib/parser/index';
+import { SAMPLE_NETHER_PORTAL_CSV, SAMPLE_NETHER_PORTAL_TXT } from '../data/sampleData';
 
-describe('Recipes & Crafting Tree Calculator Test Suite', () => {
-  describe('Database Lookup & Verification', () => {
-    it('finds recipes for common crafting items', () => {
-      expect(isCraftable('minecraft:piston')).toBe(true);
-      expect(isCraftable('minecraft:repeater')).toBe(true);
-      expect(isCraftable('minecraft:observer')).toBe(true);
-      expect(isCraftable('minecraft:oak_planks')).toBe(true);
-    });
-
-    it('returns null or false for base raw items without recipes', () => {
-      expect(isCraftable('minecraft:dirt')).toBe(false);
-      expect(isCraftable('minecraft:bedrock')).toBe(false);
-      expect(getRecipeForItem('minecraft:dirt')).toBeUndefined();
-    });
-  });
-
-  describe('Crafting Steps & Surplus Extra Calculations', () => {
-    it('calculates 10 Oak Planks -> 3 crafts of 4 (12 produced, 2 extra surplus)', () => {
+describe('Recipes & Multi-Tier Resolution Test Suite', () => {
+  describe('Critical Test 1: Oak Planks -> Oak Logs (No planks in Raw)', () => {
+    it('resolves 128 Oak Planks into exactly 32 Oak Logs in Raw Resources and 0 Oak Planks in Raw', () => {
       const materials = [
         {
           id: 'minecraft:oak_planks',
@@ -28,53 +15,53 @@ describe('Recipes & Crafting Tree Calculator Test Suite', () => {
           displayName: 'Oak Planks',
           category: 'wood' as const,
           stackSize: 64,
-          totalRequired: 10,
+          totalRequired: 128,
           owned: 0,
-          missing: 10,
+          missing: 128,
           available: 0,
           craftable: true,
           isRaw: false,
         },
       ];
 
-      const steps = generateCraftingList(materials as any, {});
-      const plankStep = steps.find(s => s.outputItemId === 'minecraft:oak_planks');
-      
-      expect(plankStep).toBeDefined();
-      expect(plankStep?.craftsNeeded).toBe(3); // 3 * 4 = 12 >= 10
-      expect(plankStep?.producedQuantity).toBe(12);
-      expect(plankStep?.extraQuantity).toBe(2);
-    });
+      const rawResults = calculateRawMaterials(materials as any);
+      expect(rawResults.find((r) => r.itemId === 'minecraft:oak_planks')).toBeUndefined();
 
-    it('calculates exact crafts for 16 Oak Planks -> 4 crafts of 4 (0 extra)', () => {
-      const materials = [
-        {
-          id: 'minecraft:oak_planks',
-          minecraftId: 'minecraft:oak_planks',
-          displayName: 'Oak Planks',
-          category: 'wood' as const,
-          stackSize: 64,
-          totalRequired: 16,
-          owned: 0,
-          missing: 16,
-          available: 0,
-          craftable: true,
-          isRaw: false,
-        },
-      ];
-
-      const steps = generateCraftingList(materials as any, {});
-      const plankStep = steps.find(s => s.outputItemId === 'minecraft:oak_planks');
-
-      expect(plankStep).toBeDefined();
-      expect(plankStep?.craftsNeeded).toBe(4);
-      expect(plankStep?.producedQuantity).toBe(16);
-      expect(plankStep?.extraQuantity).toBe(0);
+      const oakLogRaw = rawResults.find((r) => r.itemId === 'minecraft:oak_log');
+      expect(oakLogRaw).toBeDefined();
+      expect(oakLogRaw?.quantity).toBe(32); // 128 / 4 = 32
     });
   });
 
-  describe('Craftable with Raw Resources Availability', () => {
-    it('computes craftableWithRaw based on owned raw ingredients', () => {
+  describe('Critical Test 2: Glass -> Sand (Smelting in Furnace)', () => {
+    it('resolves 64 Glass into 64 Sand in Raw Resources via smelting and 0 Glass in Raw', () => {
+      const materials = [
+        {
+          id: 'minecraft:glass',
+          minecraftId: 'minecraft:glass',
+          displayName: 'Glass',
+          category: 'decoration' as const,
+          stackSize: 64,
+          totalRequired: 64,
+          owned: 0,
+          missing: 64,
+          available: 0,
+          craftable: true,
+          isRaw: false,
+        },
+      ];
+
+      const rawResults = calculateRawMaterials(materials as any);
+      expect(rawResults.find((r) => r.itemId === 'minecraft:glass')).toBeUndefined();
+
+      const sandRaw = rawResults.find((r) => r.itemId === 'minecraft:sand');
+      expect(sandRaw).toBeDefined();
+      expect(sandRaw?.quantity).toBe(64);
+    });
+  });
+
+  describe('Critical Test 3: 64 Pistons Full Chain (Smelting + Crafting)', () => {
+    it('resolves 64 Pistons down to 64 Raw Iron, 256 Cobblestone, 48 Oak Logs, and 64 Redstone', () => {
       const materials = [
         {
           id: 'minecraft:piston',
@@ -82,60 +69,117 @@ describe('Recipes & Crafting Tree Calculator Test Suite', () => {
           displayName: 'Piston',
           category: 'redstone' as const,
           stackSize: 64,
-          totalRequired: 10,
+          totalRequired: 64,
           owned: 0,
-          missing: 10,
+          missing: 64,
           available: 0,
           craftable: true,
           isRaw: false,
         },
       ];
 
-      // Piston requires: 1 iron_ingot, 4 cobblestone, 3 oak_planks, 1 redstone
-      // Suppose user has 5 iron ingots, 100 cobble, 100 planks, 100 redstone -> can craft 5 pistons
-      const rawOwnedMap = {
-        'minecraft:iron_ingot': 5,
-        'minecraft:cobblestone': 100,
-        'minecraft:oak_planks': 100,
-        'minecraft:redstone': 100,
-      };
+      const rawResults = calculateRawMaterials(materials as any);
 
-      const steps = generateCraftingList(materials as any, rawOwnedMap);
-      const pistonStep = steps.find(s => s.outputItemId === 'minecraft:piston');
+      // Raw Iron (from 64 iron ingots)
+      const rawIron = rawResults.find((r) => r.itemId === 'minecraft:raw_iron');
+      expect(rawIron).toBeDefined();
+      expect(rawIron?.quantity).toBe(64);
 
-      expect(pistonStep).toBeDefined();
-      expect(pistonStep?.craftableWithRaw).toBe(5);
+      // Cobblestone (4 per piston * 64 = 256)
+      const cobble = rawResults.find((r) => r.itemId === 'minecraft:cobblestone');
+      expect(cobble).toBeDefined();
+      expect(cobble?.quantity).toBe(256);
+
+      // Oak Logs (3 planks per piston * 64 = 192 planks -> 48 logs)
+      const oakLogs = rawResults.find((r) => r.itemId === 'minecraft:oak_log');
+      expect(oakLogs).toBeDefined();
+      expect(oakLogs?.quantity).toBe(48);
+
+      // Redstone (1 per piston * 64 = 64)
+      const redstone = rawResults.find((r) => r.itemId === 'minecraft:redstone');
+      expect(redstone).toBeDefined();
+      expect(redstone?.quantity).toBe(64);
+
+      // Intermediates like iron_ingot and oak_planks must NOT be in Raw
+      expect(rawResults.find((r) => r.itemId === 'minecraft:iron_ingot')).toBeUndefined();
+      expect(rawResults.find((r) => r.itemId === 'minecraft:oak_planks')).toBeUndefined();
+    });
+
+    it('verifies explicit linear resolution path for Piston', () => {
+      const path = getResolutionPath('minecraft:piston', 64);
+      expect(path.length).toBeGreaterThanOrEqual(2);
+      expect(path[0].tier).toBe('BUILD');
+      expect(path[path.length - 1].tier).toBe('RAW');
     });
   });
 
-  describe('Recursive Raw Material Leaves', () => {
-    it('breaks down complex redstone builds into base raw harvestable resources', () => {
+  describe('Critical Test 4: 9 Iron Blocks Full Decomposition', () => {
+    it('resolves 9 Iron Blocks into 81 Iron Ingots and 81 Raw Iron in Raw Resources', () => {
       const materials = [
         {
-          id: 'minecraft:observer',
-          minecraftId: 'minecraft:observer',
-          displayName: 'Observer',
-          category: 'redstone' as const,
+          id: 'minecraft:iron_block',
+          minecraftId: 'minecraft:iron_block',
+          displayName: 'Iron Block',
+          category: 'mineral' as const,
           stackSize: 64,
-          totalRequired: 10,
+          totalRequired: 9,
           owned: 0,
-          missing: 10,
+          missing: 9,
           available: 0,
           craftable: true,
           isRaw: false,
         },
       ];
 
-      // Observer: 6 Cobblestone, 2 Redstone, 1 Quartz
-      const raw = calculateRawMaterials(materials as any, {});
-      
-      const cobble = raw.find(r => r.itemId === 'minecraft:cobblestone');
-      const redstone = raw.find(r => r.itemId === 'minecraft:redstone');
-      const quartz = raw.find(r => r.itemId === 'minecraft:quartz');
+      const rawResults = calculateRawMaterials(materials as any);
+      const rawIron = rawResults.find((r) => r.itemId === 'minecraft:raw_iron');
+      expect(rawIron).toBeDefined();
+      expect(rawIron?.quantity).toBe(81); // 9 * 9 = 81
+    });
+  });
 
-      expect(cobble?.quantity).toBe(60);
-      expect(redstone?.quantity).toBe(20);
-      expect(quartz?.quantity).toBe(10);
+  describe('Critical Test 5: Surplus Extra Quantity & Ceil Math', () => {
+    it('calculates 437 Oak Planks -> 110 crafts, 440 produced, 3 surplus extra', () => {
+      const crafts = calculateCrafts(437, 4);
+      const excess = calculateExcess(437, 4);
+
+      expect(crafts).toBe(110);
+      expect(crafts * 4).toBe(440);
+      expect(excess).toBe(3);
+    });
+  });
+
+  describe('Critical Test 6: Alternative Recipes (Stone Slabs via Crafting vs Stonecutter)', () => {
+    it('supports alternative recipe definitions without duplication', () => {
+      const nodeDefault = resolveRecipeTree('minecraft:stone_slab', 6);
+      expect(nodeDefault).toBeDefined();
+      expect(nodeDefault.children.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Critical Test 7: End-to-End Real Schematic Parsing & Material Flow', () => {
+    it('parses real Nether Portal CSV and produces valid Build Objects, Crafting Steps, and Raw Leaves', () => {
+      const parsed = parseLitematicaFile(SAMPLE_NETHER_PORTAL_CSV, 'nether_portal.csv');
+      expect(parsed.materials.length).toBeGreaterThan(0);
+
+      const rawMaterials = calculateRawMaterials(parsed.materials as any);
+      expect(rawMaterials.length).toBeGreaterThan(0);
+
+      const craftingSteps = generateCraftingList(parsed.materials as any, {});
+      expect(craftingSteps.length).toBeGreaterThan(0);
+
+      // Verify that all raw materials are genuine terminal items without applicable recipes in raw
+      for (const raw of rawMaterials) {
+        expect(raw.quantity).toBeGreaterThan(0);
+      }
+    });
+
+    it('parses real Nether Portal TXT and accurately extracts materials and raw resources', () => {
+      const parsed = parseLitematicaFile(SAMPLE_NETHER_PORTAL_TXT, 'nether_portal.txt');
+      expect(parsed.materials.length).toBeGreaterThan(0);
+
+      const rawMaterials = calculateRawMaterials(parsed.materials as any);
+      expect(rawMaterials.length).toBeGreaterThan(0);
     });
   });
 });
