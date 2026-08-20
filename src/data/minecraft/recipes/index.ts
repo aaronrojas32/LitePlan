@@ -32,6 +32,7 @@ for (const recipe of ALL_MINECRAFT_RECIPES) {
 export interface RecipeSelectionOptions {
   allowSmelting?: boolean;
   preferStonecutter?: boolean;
+  allowSyntheticCrafting?: boolean;
   preferredType?: RecipeType;
 }
 
