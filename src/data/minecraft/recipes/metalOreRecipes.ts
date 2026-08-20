@@ -299,4 +299,52 @@ export const METAL_ORE_RECIPES: Recipe[] = [
     isDefault: true,
     minecraftVersion: '1.21',
   },
+
+  // 1.21 Copper Variants
+  {
+    id: 'minecraft:chiseled_copper',
+    type: 'crafting_shaped',
+    gridSize: '2x2',
+    output: { itemId: 'minecraft:chiseled_copper', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:cut_copper_slab', quantity: 2 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:copper_bars',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    output: { itemId: 'minecraft:copper_bars', quantity: 16 },
+    ingredients: [{ itemId: 'minecraft:copper_ingot', quantity: 6 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:copper_chain',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    output: { itemId: 'minecraft:copper_chain', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:copper_ingot', quantity: 1 },
+      { itemId: 'minecraft:copper_nugget', quantity: 2 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:copper_lantern',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    output: { itemId: 'minecraft:copper_lantern', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:copper_nugget', quantity: 8 },
+      { itemId: 'minecraft:torch', quantity: 1 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
 ];

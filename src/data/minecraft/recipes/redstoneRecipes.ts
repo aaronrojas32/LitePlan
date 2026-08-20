@@ -402,4 +402,31 @@ export const REDSTONE_RECIPES: Recipe[] = [
     isDefault: true,
     minecraftVersion: '1.21',
   },
+  {
+    id: 'minecraft:calibrated_sculk_sensor',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    output: { itemId: 'minecraft:calibrated_sculk_sensor', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:sculk_sensor', quantity: 1 },
+      { itemId: 'minecraft:amethyst_shard', quantity: 3 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:copper_bulb',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    output: { itemId: 'minecraft:copper_bulb', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:copper_block', quantity: 3 },
+      { itemId: 'minecraft:blaze_rod', quantity: 1 },
+      { itemId: 'minecraft:redstone', quantity: 1 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
 ];
