@@ -6,7 +6,7 @@ import { buildRecipeTree } from '../lib/recipes/recipeTree';
 import { getItemRawBreakdown } from '../lib/calculations/recipeCalculator';
 import { RecipeViewer } from './RecipeViewer';
 import { RecipeTree } from './RecipeTree';
-import { X, BookOpen, GitFork, Pickaxe, Sparkles } from 'lucide-react';
+import { X, BookOpen, GitFork, Pickaxe, Sparkles, Compass } from 'lucide-react';
 import { Recipe } from '../types/recipe';
 
 interface MaterialDetailsProps {
@@ -116,6 +116,19 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
               </span>
             </div>
           </div>
+
+          {/* Source and Natural Occurrence Info */}
+          {material.source && (
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1 shadow-2xs">
+              <div className="flex items-center gap-1.5 text-slate-700 font-bold text-[11px] uppercase tracking-wider">
+                <Compass className="w-3.5 h-3.5 text-blue-600" />
+                <span>Procedencia y Vías de Obtención</span>
+              </div>
+              <p className="text-slate-600 text-xs leading-relaxed">
+                {material.source}
+              </p>
+            </div>
+          )}
 
           {/* Recipe details */}
           {hasRecipes && selectedRecipe && (
