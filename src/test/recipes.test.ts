@@ -185,7 +185,7 @@ describe('Recipes & Multi-Tier Resolution Test Suite', () => {
   });
 
   describe('Critical Test 8: Polished Stones and Mossy Stone Variants', () => {
-    it('resolves Polished Diorite into Diorite in Raw Resources (and 0 Polished Diorite in Raw)', () => {
+    it('resolves Polished Diorite into Cobblestone and Quartz in Raw Resources', () => {
       const materials = [
         {
           id: 'minecraft:polished_diorite',
@@ -204,10 +204,15 @@ describe('Recipes & Multi-Tier Resolution Test Suite', () => {
 
       const rawResults = calculateRawMaterials(materials as any);
       expect(rawResults.find((r) => r.itemId === 'minecraft:polished_diorite')).toBeUndefined();
+      expect(rawResults.find((r) => r.itemId === 'minecraft:diorite')).toBeUndefined();
 
-      const dioriteRaw = rawResults.find((r) => r.itemId === 'minecraft:diorite');
-      expect(dioriteRaw).toBeDefined();
-      expect(dioriteRaw?.quantity).toBe(64);
+      const cobbleRaw = rawResults.find((r) => r.itemId === 'minecraft:cobblestone');
+      expect(cobbleRaw).toBeDefined();
+      expect(cobbleRaw?.quantity).toBe(64);
+
+      const quartzRaw = rawResults.find((r) => r.itemId === 'minecraft:quartz');
+      expect(quartzRaw).toBeDefined();
+      expect(quartzRaw?.quantity).toBe(64);
     });
 
     it('resolves Mossy Cobblestone into Cobblestone and Vine in Raw Resources', () => {
