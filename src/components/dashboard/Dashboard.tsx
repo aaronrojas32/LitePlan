@@ -52,7 +52,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </span>
           </div>
           <p className="text-sm text-slate-500">
-            Import your Litematica files, calculate exact crafting steps, and track gathering in real time.
+            Import your Litematica material list (.csv or .txt), calculate exact crafting requirements, and organize shulker box storage in real time.
           </p>
         </div>
 

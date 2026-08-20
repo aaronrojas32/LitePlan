@@ -1,0 +1,7 @@
+# robots.txt for LitePlan
+# Allows full indexing for web crawlers and search engines
+
+User-agent: *
+Allow: /
+
+Sitemap: https://aaronrojas32.github.io/LitePlan/sitemap.xml
