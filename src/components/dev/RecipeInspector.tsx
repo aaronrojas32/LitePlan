@@ -3,6 +3,7 @@ import { ItemIcon } from '../ItemIcon';
 import { getRecipeForItem, getAllRecipes } from '../../data/minecraft/recipes';
 import { resolveRecipeTree, getResolutionPath } from '../../lib/calculations/recipeResolutionEngine';
 import { RecipeTree } from '../RecipeTree';
+import { RecipeViewer } from '../RecipeViewer';
 import { MATERIALS_DATABASE } from '../../data/materialsDatabase';
 import { Search, X, BookOpen, GitFork, ArrowRight } from 'lucide-react';
 
@@ -107,6 +108,16 @@ export const RecipeInspector: React.FC<RecipeInspectorProps> = ({
               </span>
             </div>
           </div>
+
+          {/* Recipe Methods & Workspace */}
+          {recipe && (
+            <div className="space-y-2">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                Métodos de Fabricación
+              </span>
+              <RecipeViewer recipe={recipe} requiredQuantity={quantity} />
+            </div>
+          )}
 
           {/* Linear Transformation Path */}
           <div className="space-y-2">

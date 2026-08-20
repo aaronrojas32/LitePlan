@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { generateCraftingList, calculateCrafts, calculateExcess } from '../lib/calculations/recipeCalculator';
 import { calculateRawMaterials } from '../lib/calculations/rawMaterialCalculator';
 import { resolveRecipeTree, getResolutionPath } from '../lib/calculations/recipeResolutionEngine';
+import { getAllRecipesForItem } from '../data/minecraft/recipes';
 import { parseLitematicaFile } from '../lib/parser/index';
 import { SAMPLE_NETHER_PORTAL_CSV, SAMPLE_NETHER_PORTAL_TXT } from '../data/sampleData';
 
@@ -236,6 +237,39 @@ describe('Recipes & Multi-Tier Resolution Test Suite', () => {
       const vineRaw = rawResults.find((r) => r.itemId === 'minecraft:vine');
       expect(vineRaw).toBeDefined();
       expect(vineRaw?.quantity).toBe(32);
+    });
+  });
+
+  describe('Critical Test 9: Alternative Recipes & Synthetic Base Stones', () => {
+    it('provides both Crafting Table and Stonecutter alternative recipes for stone stairs/slabs/bricks', () => {
+      const stairRecipes = getAllRecipesForItem('minecraft:stone_stairs');
+      expect(stairRecipes.length).toBeGreaterThanOrEqual(2);
+
+      const shaped = stairRecipes.find((r) => r.type === 'crafting_shaped');
+      const stonecutter = stairRecipes.find((r) => r.type === 'stonecutting');
+
+      expect(shaped).toBeDefined();
+      expect(stonecutter).toBeDefined();
+      expect(stonecutter?.output.quantity).toBe(1);
+      expect(stonecutter?.ingredients[0].quantity).toBe(1);
+    });
+
+    it('has synthetic crafting recipes for Diorite, Andesite, and Granite', () => {
+      const dioriteRecipes = getAllRecipesForItem('minecraft:diorite');
+      expect(dioriteRecipes.length).toBeGreaterThanOrEqual(1);
+      const dioriteCraft = dioriteRecipes.find((r) => r.id.includes('cobblestone_and_quartz'));
+      expect(dioriteCraft).toBeDefined();
+      expect(dioriteCraft?.output.quantity).toBe(2);
+
+      const andesiteRecipes = getAllRecipesForItem('minecraft:andesite');
+      expect(andesiteRecipes.length).toBeGreaterThanOrEqual(1);
+      const andesiteCraft = andesiteRecipes.find((r) => r.id.includes('diorite_and_cobblestone'));
+      expect(andesiteCraft).toBeDefined();
+
+      const graniteRecipes = getAllRecipesForItem('minecraft:granite');
+      expect(graniteRecipes.length).toBeGreaterThanOrEqual(1);
+      const graniteCraft = graniteRecipes.find((r) => r.id.includes('diorite_and_quartz'));
+      expect(graniteCraft).toBeDefined();
     });
   });
 });
