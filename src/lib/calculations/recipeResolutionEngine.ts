@@ -68,9 +68,8 @@ export function resolveRecipeTree(
 
   const recipe = getRecipeForItem(itemId, options);
 
-  // If no applicable recipe exists, circular loop, or base raw world material reached, it's a RAW terminal leaf
-  const isBaseRawWorldMaterial = Boolean(matDef?.isRaw && !isRoot && !options.allowSyntheticCrafting);
-  if (!recipe || visited.has(itemId) || isBaseRawWorldMaterial) {
+  // If no applicable recipe exists or circular loop is reached, it's a RAW terminal leaf
+  if (!recipe || visited.has(itemId)) {
     return {
       itemId,
       displayName,
@@ -79,11 +78,7 @@ export function resolveRecipeTree(
       totalQuantity: quantity,
       stacks,
       isLeaf: true,
-      transformationText: isBaseRawWorldMaterial
-        ? 'Base Harvest Resource'
-        : !recipe
-        ? 'Base Raw Resource (No recipe)'
-        : 'Circular Reference Protected',
+      transformationText: !recipe ? 'Base Raw Resource (No recipe)' : 'Circular Reference Protected',
       children: [],
     };
   }

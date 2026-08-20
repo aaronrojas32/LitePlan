@@ -122,6 +122,30 @@ export const STONE_RECIPES: Recipe[] = [
     minecraftVersion: '1.21',
     description: '1x Stone (Smelting) -> 1x Smooth Stone',
   },
+  {
+    id: 'minecraft:smooth_stone_slab',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    gridPattern: [
+      ['minecraft:smooth_stone', 'minecraft:smooth_stone', 'minecraft:smooth_stone'],
+      [null, null, null],
+      [null, null, null],
+    ],
+    output: { itemId: 'minecraft:smooth_stone_slab', quantity: 6 },
+    ingredients: [{ itemId: 'minecraft:smooth_stone', quantity: 3 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:smooth_stone_slab_stonecutter',
+    type: 'stonecutting',
+    output: { itemId: 'minecraft:smooth_stone_slab', quantity: 2 },
+    ingredients: [{ itemId: 'minecraft:smooth_stone', quantity: 1 }],
+    priority: 80,
+    isDefault: false,
+    minecraftVersion: '1.21',
+  },
   // 3. 4 Stone -> 4 Stone Bricks
   {
     id: 'minecraft:stone_bricks',

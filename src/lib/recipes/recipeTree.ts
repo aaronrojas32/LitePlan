@@ -20,9 +20,8 @@ export function buildRecipeTree(
 
   const recipe = getRecipeForItem(itemId);
 
-  // If item is base raw resource, not craftable, or cyclical reference reached, it's a RAW terminal leaf
-  const isBaseRaw = Boolean(matDef?.isRaw && !isRoot);
-  if (!recipe || visited.has(itemId) || isBaseRaw) {
+  // If item has no recipe or cyclical reference reached, it's a RAW terminal leaf
+  if (!recipe || visited.has(itemId)) {
     return {
       itemId,
       displayName,
@@ -30,7 +29,7 @@ export function buildRecipeTree(
       stacks,
       isLeaf: true,
       tier: isRoot ? 'BUILD' : 'RAW',
-      transformationText: isBaseRaw ? 'Base Harvest Resource' : !recipe ? 'Base Raw Resource' : 'Circular Reference Protected',
+      transformationText: !recipe ? 'Base Raw Resource' : 'Circular Reference Protected',
     };
   }
 

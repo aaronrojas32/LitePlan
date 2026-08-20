@@ -236,6 +236,69 @@ export const DECORATION_RECIPES: Recipe[] = [
     isDefault: true,
     minecraftVersion: '1.21',
   },
+  {
+    id: 'minecraft:flower_pot',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    gridPattern: [
+      ['minecraft:brick', null, 'minecraft:brick'],
+      [null, 'minecraft:brick', null],
+      [null, null, null],
+    ],
+    output: { itemId: 'minecraft:flower_pot', quantity: 1 },
+    ingredients: [{ itemId: 'minecraft:brick', quantity: 3 }],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:item_frame',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    gridPattern: [
+      ['minecraft:stick', 'minecraft:stick', 'minecraft:stick'],
+      ['minecraft:stick', 'minecraft:leather', 'minecraft:stick'],
+      ['minecraft:stick', 'minecraft:stick', 'minecraft:stick'],
+    ],
+    output: { itemId: 'minecraft:item_frame', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:stick', quantity: 8 },
+      { itemId: 'minecraft:leather', quantity: 1 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:glow_item_frame',
+    type: 'crafting_shapeless',
+    output: { itemId: 'minecraft:glow_item_frame', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:item_frame', quantity: 1 },
+      { itemId: 'minecraft:glow_ink_sac', quantity: 1 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:painting',
+    type: 'crafting_shaped',
+    gridSize: '3x3',
+    gridPattern: [
+      ['minecraft:stick', 'minecraft:stick', 'minecraft:stick'],
+      ['minecraft:stick', 'minecraft:white_wool', 'minecraft:stick'],
+      ['minecraft:stick', 'minecraft:stick', 'minecraft:stick'],
+    ],
+    output: { itemId: 'minecraft:painting', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:stick', quantity: 8 },
+      { itemId: 'minecraft:white_wool', quantity: 1 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
 
   // 3. Iron Utilities (Bars, Chains)
   {
