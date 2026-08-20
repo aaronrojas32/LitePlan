@@ -1,30 +1,45 @@
 export type RecipeType =
+  | 'crafting_shaped'
+  | 'crafting_shapeless'
   | 'crafting'
   | 'smelting'
-  | 'stonecutting'
   | 'blasting'
   | 'smoking'
+  | 'stonecutting'
   | 'smithing'
+  | 'campfire_cooking'
   | 'brewing';
+
+export type MaterialTier = 'BUILD' | 'INTERMEDIATE' | 'PROCESSING' | 'RAW';
 
 export interface RecipeIngredient {
   itemId: string; // e.g. "minecraft:iron_ingot"
   quantity: number; // units needed per single recipe execution
 }
 
+export interface RecipeGrid {
+  size: '2x2' | '3x3';
+  pattern: (string | null)[][];
+}
+
 export interface Recipe {
   id: string;
   type: RecipeType;
   gridSize?: '2x2' | '3x3';
-  gridPattern?: (string | null)[][]; // 2x2 or 3x3 positions
+  gridPattern?: (string | null)[][];
+  grid?: RecipeGrid;
   smeltingInput?: string; // For furnace recipes
   output: {
     itemId: string; // e.g. "minecraft:oak_planks"
     quantity: number; // e.g. 4
   };
   ingredients: RecipeIngredient[];
+  priority?: number;
+  isDefault?: boolean;
+  source?: string;
+  minecraftVersion?: '1.21' | string;
   description?: string;
-  cookingTime?: number; // Optional in seconds/ticks
+  cookingTime?: number;
   experience?: number;
 }
 
@@ -47,6 +62,9 @@ export interface RecipeTreeNode {
   totalQuantity: number;
   stacks: string;
   isLeaf: boolean;
+  tier?: MaterialTier;
+  recipeType?: RecipeType;
+  transformationText?: string;
   recipe?: Recipe;
   craftCount?: number;
   producedQuantity?: number;

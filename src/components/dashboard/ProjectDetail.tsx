@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Project } from '../../types/project';
 import { AnalyzedMaterial } from '../../types/material';
-import { MaterialSummary } from '../MaterialSummary';
+import { ProjectOverview } from './ProjectOverview';
 import { SearchBar } from '../SearchBar';
 import { FilterBar, FilterCategory } from '../FilterBar';
 import { MaterialTable } from '../MaterialTable';
 import { CraftingList } from '../CraftingList';
 import { StorageList } from '../StorageList';
-import { RawMaterials } from '../RawMaterials';
 import { GatheringList } from '../GatheringList';
 import { MaterialDetails } from '../MaterialDetails';
 import { ExportModal } from '../ExportModal';
@@ -23,7 +22,6 @@ import {
   Hammer,
   Pickaxe,
   Archive,
-  CheckSquare,
 } from 'lucide-react';
 
 interface ProjectDetailProps {
@@ -36,6 +34,8 @@ interface ProjectDetailProps {
   onDelete: () => void;
 }
 
+export type ProjectTab = 'overview' | 'build' | 'craft' | 'gather' | 'storage';
+
 export const ProjectDetail: React.FC<ProjectDetailProps> = ({
   project,
   onBack,
@@ -45,13 +45,13 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
   onDuplicate,
   onDelete,
 }) => {
-  const [activeTab, setActiveTab] = useState<'materials' | 'crafting' | 'raw' | 'gathering' | 'storage' | 'overview'>('materials');
+  const [activeTab, setActiveTab] = useState<ProjectTab>('overview');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentFilter, setCurrentFilter] = useState<FilterCategory>('all');
   const [selectedMaterial, setSelectedMaterial] = useState<AnalyzedMaterial | null>(null);
   const [isExportOpen, setIsExportOpen] = useState(false);
 
-  // Filtered materials
+  // Filtered materials for Build tab
   const filteredMaterials = React.useMemo(() => {
     return project.materials.filter((mat) => {
       if (searchQuery.trim()) {
@@ -66,9 +66,10 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
       }
 
       if (currentFilter === 'missing') return mat.missing > 0;
+      if (currentFilter === 'partial') return mat.owned > 0 && mat.missing > 0;
+      if (currentFilter === 'complete') return mat.missing === 0;
       if (currentFilter === 'craftable') return mat.craftable;
       if (currentFilter === 'raw') return !mat.craftable;
-      if (currentFilter === 'complete') return mat.missing === 0;
       if (currentFilter === 'unknown') return mat.unrecognized === true;
 
       return true;
@@ -80,16 +81,17 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
     return {
       all: mats.length,
       missing: mats.filter((m) => m.missing > 0).length,
+      partial: mats.filter((m) => m.owned > 0 && m.missing > 0).length,
+      complete: mats.filter((m) => m.missing === 0).length,
       craftable: mats.filter((m) => m.craftable).length,
       raw: mats.filter((m) => !m.craftable).length,
-      complete: mats.filter((m) => m.missing === 0).length,
       unknown: mats.filter((m) => m.unrecognized === true).length,
     };
   }, [project.materials]);
 
   return (
     <div className="space-y-5">
-      {/* Top Project Navigation Card */}
+      {/* Top Project Navigation & Hero Card */}
       <div className="bg-white rounded-xl p-5 sm:p-6 border border-slate-200 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-3.5">
@@ -97,7 +99,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
               type="button"
               onClick={onBack}
               className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition cursor-pointer"
-              title="Back to Projects"
+              title="Back to Dashboard"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
@@ -115,13 +117,13 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   type="button"
                   onClick={onRename}
                   className="text-slate-400 hover:text-blue-600 transition cursor-pointer"
-                  title="Rename"
+                  title="Rename Project"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
                 </button>
               </div>
               <p className="text-xs text-slate-500 font-mono mt-0.5">
-                {project.sourceFilename || 'Litematica'} • <b>{project.summary.totalBlocks.toLocaleString()}</b> blocks • <b>{project.materials.length}</b> build materials
+                {project.sourceFilename || 'Litematica'} • <b>{project.summary.totalBlocks.toLocaleString()}</b> blocks • <b>{project.materials.length}</b> build objects
               </p>
             </div>
           </div>
@@ -158,7 +160,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
           </div>
         </div>
 
-        {/* Gathering Progress Bar (Based exclusively on Build Objects) */}
+        {/* Build Progress Bar (Exclusively driven by Build Objects) */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs font-mono">
             <div className="flex items-center gap-2">
@@ -169,7 +171,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
             </div>
 
             <span className="text-slate-400">
-              {project.progress.completedMaterials} of {project.progress.totalMaterials} build materials complete
+              {project.progress.completedMaterials} of {project.progress.totalMaterials} build objects complete
             </span>
           </div>
 
@@ -182,16 +184,15 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
         </div>
       </div>
 
-      {/* Tabs Navigation Bar with Distinct Names */}
+      {/* 5 Core Tabs Navigation Bar: Overview, Build, Craft, Gather, Storage */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-2">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
           {[
-            { id: 'materials' as const, label: 'Build Objects', icon: Boxes, count: project.materials.length },
-            { id: 'crafting' as const, label: 'Crafting Requirements', icon: Hammer, count: project.craftingSteps.length },
-            { id: 'raw' as const, label: 'Raw Resources', icon: Pickaxe, count: project.rawMaterials.length },
-            { id: 'gathering' as const, label: 'Checklist', icon: CheckSquare },
-            { id: 'storage' as const, label: 'Storage Planning', icon: Archive },
             { id: 'overview' as const, label: 'Overview', icon: Layers },
+            { id: 'build' as const, label: 'Build', icon: Boxes, count: project.materials.length },
+            { id: 'craft' as const, label: 'Craft', icon: Hammer, count: project.craftingSteps.length },
+            { id: 'gather' as const, label: 'Gather', icon: Pickaxe, count: project.rawMaterials.length },
+            { id: 'storage' as const, label: 'Storage', icon: Archive },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -220,13 +221,22 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
           })}
         </div>
 
-        {activeTab === 'materials' && (
+        {activeTab === 'build' && (
           <SearchBar query={searchQuery} onChange={setSearchQuery} />
         )}
       </div>
 
       {/* Tab Views */}
-      {activeTab === 'materials' && (
+      {activeTab === 'overview' && (
+        <ProjectOverview
+          project={project}
+          onNavigateTab={setActiveTab}
+          onUpdateOwned={onUpdateOwned}
+          onUpdateRawOwned={onUpdateRawOwned}
+        />
+      )}
+
+      {activeTab === 'build' && (
         <div className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <FilterBar
@@ -248,18 +258,14 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
         </div>
       )}
 
-      {activeTab === 'crafting' && (
-        <CraftingList craftingSteps={project.craftingSteps} />
-      )}
-
-      {activeTab === 'raw' && (
-        <RawMaterials
-          rawMaterials={project.rawMaterials}
-          onUpdateRawOwned={onUpdateRawOwned}
+      {activeTab === 'craft' && (
+        <CraftingList
+          craftingSteps={project.craftingSteps}
+          onUpdateOwned={onUpdateOwned}
         />
       )}
 
-      {activeTab === 'gathering' && (
+      {activeTab === 'gather' && (
         <GatheringList
           materials={project.materials}
           rawMaterials={project.rawMaterials}
@@ -272,14 +278,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
         <StorageList materials={project.materials} />
       )}
 
-      {activeTab === 'overview' && (
-        <MaterialSummary
-          summary={project.summary}
-          rawMaterials={project.rawMaterials}
-        />
-      )}
-
-      {/* Slide-over detail drawer */}
+      {/* Slide-over Detail Drawer */}
       <MaterialDetails
         material={selectedMaterial}
         onClose={() => setSelectedMaterial(null)}

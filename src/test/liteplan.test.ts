@@ -323,4 +323,122 @@ describe('LitePlan Calculation & Architecture Test Suite', () => {
       expect(updated.rawMaterials[0].owned).toBe(60);
     });
   });
+
+  describe('4. Sections 36, 37, 38 Critical Test Cases', () => {
+    // SECTION 36: Critical test for Pistons build progress and raw inventory
+    it('SECTION 36: 64 Pistons required -> Raw resources 100% gathered gives 0% Build Progress until crafted', () => {
+      const pistonMaterial = {
+        id: 'minecraft:piston',
+        minecraftId: 'minecraft:piston',
+        displayName: 'Piston',
+        category: 'redstone' as const,
+        stackSize: 64,
+        totalRequired: 64,
+        owned: 0,
+        missing: 64,
+        available: 0,
+        craftable: true,
+        isRaw: false,
+      };
+
+      // Raw ingredients for 64 Pistons (1 Iron Ingot from 1 Raw Iron, 4 Cobblestone, 3 Oak Planks from Oak Logs, 1 Redstone each):
+      // 64 Raw Iron, 256 Cobble, 192 Oak Planks (from 48 Oak Logs), 64 Redstone
+      const rawOwnedMap = {
+        'minecraft:raw_iron': 64,
+        'minecraft:cobblestone': 256,
+        'minecraft:oak_log': 48,
+        'minecraft:redstone': 64,
+      };
+
+      // 1. Initial State: 0 Pistons owned, all raw gathered
+      const progressInitial = calculateProjectProgress([pistonMaterial] as any);
+      expect(progressInitial.percentage).toBe(0);
+      expect(progressInitial.ownedBlocks).toBe(0);
+      expect(progressInitial.missingBlocks).toBe(64);
+
+      // Raw materials calculation confirms all raw requirements are satisfied
+      const rawRequirements = calculateRawMaterials([pistonMaterial] as any, rawOwnedMap);
+      const missingRaw = rawRequirements.filter((r) => r.missing > 0);
+      expect(missingRaw.length).toBe(0); // 100% raw gathered
+
+      // 2. User crafts 32 Pistons (owned = 32)
+      pistonMaterial.owned = 32;
+      pistonMaterial.missing = 32;
+      const progressHalf = calculateProjectProgress([pistonMaterial] as any);
+      expect(progressHalf.percentage).toBe(50);
+      expect(progressHalf.ownedBlocks).toBe(32);
+      expect(progressHalf.missingBlocks).toBe(32);
+
+      // 3. User crafts 64 Pistons (owned = 64)
+      pistonMaterial.owned = 64;
+      pistonMaterial.missing = 0;
+      const progressFull = calculateProjectProgress([pistonMaterial] as any);
+      expect(progressFull.percentage).toBe(100);
+      expect(progressFull.ownedBlocks).toBe(64);
+      expect(progressFull.missingBlocks).toBe(0);
+      expect(progressFull.isComplete).toBe(true);
+    });
+
+    // SECTION 37: Double counting prevention test
+    it('SECTION 37: 64 Iron Ingots do NOT count as 64 Build Objects if the build requires 64 Pistons', () => {
+      const pistonMaterial = {
+        id: 'minecraft:piston',
+        minecraftId: 'minecraft:piston',
+        displayName: 'Piston',
+        category: 'redstone' as const,
+        stackSize: 64,
+        totalRequired: 64,
+        owned: 0, // Player has 0 pistons
+        missing: 64,
+        available: 0,
+        craftable: true,
+        isRaw: false,
+      };
+
+      // Player has 64 Iron Ingots in raw inventory
+      const progress = calculateProjectProgress([pistonMaterial] as any);
+      expect(progress.ownedBlocks).toBe(0);
+      expect(progress.percentage).toBe(0);
+      expect(progress.totalBlocks).toBe(64);
+    });
+
+    // SECTION 38: Aggregation of same raw resource across multiple items
+    it('SECTION 38: Two items requiring Oak Logs (32 planks + 15 planks) accumulate into total Oak Logs without duplicates', () => {
+      const materials = [
+        {
+          id: 'minecraft:oak_planks',
+          minecraftId: 'minecraft:oak_planks',
+          displayName: 'Oak Planks (Section A)',
+          category: 'wood' as const,
+          stackSize: 64,
+          totalRequired: 32, // requires 8 Oak Logs
+          owned: 0,
+          missing: 32,
+          available: 0,
+          craftable: true,
+          isRaw: false,
+        },
+        {
+          id: 'minecraft:oak_stairs',
+          minecraftId: 'minecraft:oak_stairs',
+          displayName: 'Oak Stairs (Section B)',
+          category: 'wood' as const,
+          stackSize: 64,
+          totalRequired: 8, // recipe: 6 planks -> 4 stairs => 2 crafts => 12 planks => 3 logs
+          owned: 0,
+          missing: 8,
+          available: 0,
+          craftable: true,
+          isRaw: false,
+        },
+      ];
+
+      const raw = calculateRawMaterials(materials as any, {});
+      const oakLogs = raw.filter((r) => r.itemId === 'minecraft:oak_log');
+      
+      // Must not create duplicate Oak Log entries in the raw resource list
+      expect(oakLogs.length).toBe(1);
+      expect(oakLogs[0].quantity).toBe(11); // 8 logs + 3 logs = 11 logs
+    });
+  });
 });

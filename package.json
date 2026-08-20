@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
+    "validate:recipes": "vitest run src/test/recipeDatasetValidation.test.ts",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },
