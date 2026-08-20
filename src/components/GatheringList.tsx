@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AnalyzedMaterial } from '../types/material';
 import { RawMaterialRequirement } from '../types/recipe';
 import { ItemIcon } from './ItemIcon';
-import { CheckSquare, Boxes, Pickaxe, Plus, Minus, Check } from 'lucide-react';
+import { Boxes, Pickaxe, Plus, Minus, Check } from 'lucide-react';
 
 interface GatheringListProps {
   materials: AnalyzedMaterial[];
@@ -33,13 +33,13 @@ export const GatheringList: React.FC<GatheringListProps> = ({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <CheckSquare className="w-5 h-5 text-blue-600" />
-            <h3 className="text-base font-bold text-slate-900 tracking-tight">
-              Interactive Checklist
-            </h3>
+            <Pickaxe className="w-5 h-5 text-emerald-600" />
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">
+              Gather
+            </h2>
           </div>
           <p className="text-slate-500 text-xs mt-0.5">
-            Keep this open while playing. Steppers and completion buttons update quantities in real time.
+            Everything you still need to collect. Use steppers or one-click completion while playing.
           </p>
         </div>
 
@@ -75,7 +75,7 @@ export const GatheringList: React.FC<GatheringListProps> = ({
         </div>
       </div>
 
-      {/* Mode A: Build Objects Checklist */}
+      {/* Mode A: Build Objects Gathering */}
       {activeSubTab === 'build' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between bg-blue-50 p-3 rounded-lg border border-blue-100 text-xs">
@@ -177,7 +177,7 @@ export const GatheringList: React.FC<GatheringListProps> = ({
         </div>
       )}
 
-      {/* Mode B: Raw Resources Checklist */}
+      {/* Mode B: Raw Resources Gathering */}
       {activeSubTab === 'raw' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between bg-emerald-50 p-3 rounded-lg border border-emerald-100 text-xs">

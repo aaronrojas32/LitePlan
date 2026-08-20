@@ -136,9 +136,24 @@ export const RECIPES_DATABASE: Record<string, Recipe> = {
     ],
     output: { itemId: 'minecraft:crafting_table', quantity: 1 },
     ingredients: [{ itemId: 'minecraft:oak_planks', quantity: 4 }],
+    description: '4x Tablas de madera = 1x Mesa de trabajo',
   },
-
-  // Stones & Polish (2x2 / 3x3)
+  'minecraft:oak_stairs': {
+    id: 'minecraft:oak_stairs',
+    type: 'crafting',
+    gridSize: '3x3',
+    output: { itemId: 'minecraft:oak_stairs', quantity: 4 },
+    ingredients: [{ itemId: 'minecraft:oak_planks', quantity: 6 }],
+    description: '6x Tablas de roble = 4x Escaleras de roble',
+  },
+  'minecraft:oak_slab': {
+    id: 'minecraft:oak_slab',
+    type: 'crafting',
+    gridSize: '3x3',
+    output: { itemId: 'minecraft:oak_slab', quantity: 6 },
+    ingredients: [{ itemId: 'minecraft:oak_planks', quantity: 3 }],
+    description: '3x Tablas de roble = 6x Losas de roble',
+  },
   'minecraft:polished_diorite': {
     id: 'minecraft:polished_diorite',
     type: 'crafting',

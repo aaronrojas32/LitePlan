@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type FilterCategory = 'all' | 'missing' | 'craftable' | 'raw' | 'complete' | 'unknown';
+export type FilterCategory = 'all' | 'missing' | 'partial' | 'complete' | 'craftable' | 'raw' | 'unknown';
 
 interface FilterBarProps {
   currentFilter: FilterCategory;
@@ -8,9 +8,10 @@ interface FilterBarProps {
   counts: {
     all: number;
     missing: number;
+    partial: number;
+    complete: number;
     craftable: number;
     raw: number;
-    complete: number;
     unknown: number;
   };
 }
@@ -21,11 +22,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   counts,
 }) => {
   const filters: Array<{ id: FilterCategory; label: string; count: number }> = [
-    { id: 'all', label: 'All Items', count: counts.all },
+    { id: 'all', label: 'All', count: counts.all },
     { id: 'missing', label: 'Missing', count: counts.missing },
+    { id: 'partial', label: 'Partial', count: counts.partial },
+    { id: 'complete', label: 'Complete', count: counts.complete },
     { id: 'craftable', label: 'Craftable', count: counts.craftable },
     { id: 'raw', label: 'Raw', count: counts.raw },
-    { id: 'complete', label: 'Complete', count: counts.complete },
   ];
 
   if (counts.unknown > 0) {

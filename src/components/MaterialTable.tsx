@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { AnalyzedMaterial } from '../types/material';
 import { MaterialRow } from './MaterialRow';
-import { ArrowUpDown, ArrowDown, ArrowUp } from 'lucide-react';
+import { ArrowUpDown, ArrowDown, ArrowUp, Check, Plus, Minus } from 'lucide-react';
+import { ItemIcon } from './ItemIcon';
 import { calculateMaterialProgress } from '../lib/calculations/progressCalculator';
 
 interface MaterialTableProps {
@@ -62,7 +63,7 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
   if (materials.length === 0) {
     return (
       <div className="w-full bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-500 text-xs">
-        No materials found matching your filter or search query.
+        No build objects found matching your filter or search query.
       </div>
     );
   }
@@ -100,21 +101,9 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
                 onClick={() => handleSort('required')}
               >
                 <div className="flex items-center justify-end gap-1">
-                  <span>Blocks</span>
+                  <span>Required</span>
                   {renderSortIcon('required')}
                 </div>
-              </th>
-              <th
-                className="py-3 px-3 cursor-pointer hover:text-slate-900 transition group"
-                onClick={() => handleSort('stacks')}
-              >
-                <div className="flex items-center gap-1">
-                  <span>Stacks</span>
-                  {renderSortIcon('stacks')}
-                </div>
-              </th>
-              <th className="py-3 px-3 text-center">
-                <span>Shulkers</span>
               </th>
               <th
                 className="py-3 px-3 text-center cursor-pointer hover:text-slate-900 transition group"
@@ -135,6 +124,16 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
                 </div>
               </th>
               <th
+                className="py-3 px-3 cursor-pointer hover:text-slate-900 transition group"
+                onClick={() => handleSort('stacks')}
+              >
+                <div className="flex items-center gap-1">
+                  <span>Stacks</span>
+                  {renderSortIcon('stacks')}
+                </div>
+              </th>
+              <th className="py-3 px-3 text-center">Shulkers</th>
+              <th
                 className="py-3 px-3 text-center cursor-pointer hover:text-slate-900 transition group"
                 onClick={() => handleSort('progress')}
               >
@@ -145,7 +144,6 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
               </th>
             </tr>
           </thead>
-
           <tbody className="divide-y divide-slate-100">
             {sortedMaterials.map((mat) => (
               <MaterialRow
@@ -160,45 +158,88 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
         </table>
       </div>
 
-      {/* Mobile Card List View */}
-      <div className="md:hidden space-y-2.5">
-        {sortedMaterials.map((mat) => (
-          <div
-            key={mat.id}
-            onClick={() => onSelectMaterial(mat)}
-            className="p-3.5 bg-white rounded-xl border border-slate-200 space-y-3 cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <span className="font-bold text-xs text-slate-900">{mat.displayName}</span>
-              </div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                mat.missing === 0
-                  ? 'bg-emerald-100 text-emerald-800'
-                  : mat.owned > 0
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'bg-slate-100 text-slate-600'
-              }`}>
-                {mat.missing === 0 ? 'Complete' : `${mat.missing} missing`}
-              </span>
-            </div>
+      {/* Mobile Card Grid View */}
+      <div className="grid grid-cols-1 gap-3 md:hidden">
+        {sortedMaterials.map((mat) => {
+          const isComplete = mat.missing === 0;
 
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="p-1.5 bg-slate-50 rounded">
-                <span className="text-[10px] text-slate-400 block">Required</span>
-                <span className="font-mono font-bold text-slate-800">{mat.totalRequired}</span>
+          return (
+            <div
+              key={mat.id}
+              onClick={() => onSelectMaterial(mat)}
+              className={`p-4 rounded-xl border bg-white shadow-2xs space-y-3 cursor-pointer transition ${
+                selectedMaterialId === mat.id
+                  ? 'border-blue-500 ring-2 ring-blue-100'
+                  : 'border-slate-200'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center p-1 shrink-0">
+                    <ItemIcon itemId={mat.id} size={28} />
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-900 block text-xs">
+                      {mat.displayName}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      {mat.quantity.stacksFormatted} • {mat.storage.shulkerStorageFormatted}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right font-mono">
+                  <div className="font-bold text-slate-900 text-xs">
+                    {mat.owned} / {mat.totalRequired}
+                  </div>
+                  <span className={`text-[11px] font-semibold ${isComplete ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {isComplete ? 'Complete' : `${mat.missing} missing`}
+                  </span>
+                </div>
               </div>
-              <div className="p-1.5 bg-slate-50 rounded">
-                <span className="text-[10px] text-slate-400 block">Owned</span>
-                <span className="font-mono font-bold text-slate-800">{mat.owned}</span>
-              </div>
-              <div className="p-1.5 bg-slate-50 rounded">
-                <span className="text-[10px] text-slate-400 block">Stacks</span>
-                <span className="font-mono text-slate-600 text-[11px]">{mat.quantity.stacksFormatted}</span>
+
+              {/* Stepper & Actions */}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onUpdateOwned(mat.id, Math.max(0, mat.owned - 1))}
+                    className="w-7 h-7 rounded bg-slate-100 flex items-center justify-center text-slate-700 font-bold"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <input
+                    type="number"
+                    min="0"
+                    value={mat.owned}
+                    onChange={(e) => onUpdateOwned(mat.id, parseInt(e.target.value) || 0)}
+                    className="w-14 text-center font-mono font-bold text-xs bg-slate-50 border border-slate-200 rounded py-1"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => onUpdateOwned(mat.id, mat.owned + 1)}
+                    className="w-7 h-7 rounded bg-slate-100 flex items-center justify-center text-slate-700 font-bold"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => onUpdateOwned(mat.id, isComplete ? 0 : mat.totalRequired)}
+                  className={`px-3 py-1 rounded text-xs font-semibold flex items-center gap-1 ${
+                    isComplete
+                      ? 'bg-slate-100 text-slate-600'
+                      : 'bg-emerald-600 text-white shadow-2xs'
+                  }`}
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{isComplete ? 'Reset' : 'Done'}</span>
+                </button>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
