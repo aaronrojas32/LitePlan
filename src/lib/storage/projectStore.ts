@@ -17,7 +17,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
   defaultStackSize: 64,
 };
 
-// Open IndexedDB database instance (Browser only)
+/**
+ * Initializes and returns an IndexedDB database instance.
+ * Rejects gracefully when run in non-browser environments.
+ */
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     if (typeof window === 'undefined' || !window.indexedDB) {
@@ -42,13 +45,17 @@ function openDB(): Promise<IDBDatabase> {
   });
 }
 
-// In-Memory & LocalStorage fallback
+// In-Memory & LocalStorage fallback for non-IndexedDB contexts or test environments
 const LOCAL_STORAGE_KEY_PROJECTS = 'liteplan_projects_fallback';
 const LOCAL_STORAGE_KEY_SETTINGS = 'liteplan_settings_fallback';
 
 let inMemoryProjects: Project[] = [];
 let inMemorySettings: AppSettings = DEFAULT_SETTINGS;
 
+/**
+ * Validates and repairs project objects from older database schemas.
+ * Ensures all required arrays, progress metrics, and calculated summaries are populated.
+ */
 function migrateProject(p: any): Project {
   const materials = Array.isArray(p.materials) ? p.materials : [];
   const rawMaterials = Array.isArray(p.rawMaterials) ? p.rawMaterials : calculateRawMaterials(materials);
@@ -107,6 +114,9 @@ function migrateProject(p: any): Project {
   };
 }
 
+/**
+ * Retrieves projects from fallback LocalStorage.
+ */
 function getLocalProjects(): Project[] {
   if (typeof localStorage !== 'undefined') {
     try {
@@ -120,6 +130,9 @@ function getLocalProjects(): Project[] {
   return inMemoryProjects.map(migrateProject);
 }
 
+/**
+ * Persists projects to fallback LocalStorage.
+ */
 function saveLocalProjects(projects: Project[]) {
   inMemoryProjects = [...projects];
   if (typeof localStorage !== 'undefined') {
@@ -132,7 +145,7 @@ function saveLocalProjects(projects: Project[]) {
 }
 
 /**
- * Retrieves all stored projects, sorted by updatedAt descending
+ * Retrieves all stored projects, sorted by updatedAt descending.
  */
 export async function getAllProjects(): Promise<Project[]> {
   try {
@@ -163,7 +176,7 @@ export async function getAllProjects(): Promise<Project[]> {
 }
 
 /**
- * Retrieves a single project by ID
+ * Retrieves a single project by ID.
  */
 export async function getProjectById(id: string): Promise<Project | null> {
   try {
@@ -188,7 +201,7 @@ export async function getProjectById(id: string): Promise<Project | null> {
 }
 
 /**
- * Saves or updates a project in the database
+ * Saves or updates a project in the database and recalculates progress metrics.
  */
 export async function saveProject(project: Project): Promise<Project> {
   const cleanProject = migrateProject(project);
@@ -227,7 +240,7 @@ export async function saveProject(project: Project): Promise<Project> {
 }
 
 /**
- * Creates a new project from a raw Litematica file content
+ * Creates and persists a new project from raw Litematica file content.
  */
 export async function createProjectFromImport(
   name: string,
@@ -237,13 +250,16 @@ export async function createProjectFromImport(
   thumbnail?: string
 ): Promise<Project> {
   const parsed = parseLitematicaFile(content, filename);
+  const id = `proj_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const now = new Date().toISOString();
-  const id = `project_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
+  // Populate initial owned mapping from file availability column
   const initialOwned: Record<string, number> = {};
-  parsed.materials.forEach((m) => {
-    initialOwned[m.id] = m.available;
-  });
+  for (const m of parsed.materials) {
+    if (m.available > 0) {
+      initialOwned[m.id] = m.available;
+    }
+  }
 
   const progress = calculateProjectProgress(parsed.materials, parsed.craftingSteps);
 
@@ -274,7 +290,7 @@ export async function createProjectFromImport(
 }
 
 /**
- * Duplicates an existing project
+ * Duplicates an existing project.
  */
 export async function duplicateProject(id: string): Promise<Project | null> {
   const original = await getProjectById(id);
@@ -299,7 +315,7 @@ export async function duplicateProject(id: string): Promise<Project | null> {
 }
 
 /**
- * Deletes a project by ID
+ * Deletes a project by ID from IndexedDB and fallback storage.
  */
 export async function deleteProject(id: string): Promise<boolean> {
   try {
@@ -320,16 +336,17 @@ export async function deleteProject(id: string): Promise<boolean> {
 }
 
 /**
- * Updates owned quantities and recalculates everything for a project
+ * Updates owned quantities and recalculates all material, raw resource, and crafting metrics.
  */
 export function updateProjectOwnedMap(
   project: Project,
   newOwnedMap: Record<string, number>,
   newRawOwnedMap: Record<string, number> = project.rawOwnedMap || {}
 ): Project {
-  const { materials, unrecognized, summary } = aggregateMaterials(project.parsedRows, newOwnedMap);
+  const { materials, summary } = aggregateMaterials(project.parsedRows, newOwnedMap);
   const rawMaterials = calculateRawMaterials(materials, newRawOwnedMap);
   const craftingSteps = generateCraftingList(materials, newRawOwnedMap);
+
   summary.rawMaterialCount = rawMaterials.length;
 
   const progress = calculateProjectProgress(
@@ -341,7 +358,6 @@ export function updateProjectOwnedMap(
   return {
     ...project,
     materials,
-    unrecognized,
     rawMaterials,
     craftingSteps,
     ownedMap: newOwnedMap,
@@ -353,7 +369,7 @@ export function updateProjectOwnedMap(
 }
 
 /**
- * Exports complete backup of LitePlan data as a JSON string
+ * Exports complete backup of LitePlan data as a JSON string.
  */
 export async function exportLitePlanBackup(): Promise<string> {
   const projects = await getAllProjects();
@@ -370,7 +386,7 @@ export async function exportLitePlanBackup(): Promise<string> {
 }
 
 /**
- * Restores LitePlan data from a backup JSON string
+ * Restores LitePlan data from a backup JSON string.
  */
 export async function importLitePlanBackup(jsonString: string): Promise<{ success: boolean; importedCount: number; error?: string }> {
   try {
@@ -398,7 +414,7 @@ export async function importLitePlanBackup(jsonString: string): Promise<{ succes
 }
 
 /**
- * Deletes all projects and resets settings (Danger zone)
+ * Deletes all projects and resets settings.
  */
 export async function clearAllData(): Promise<void> {
   try {
@@ -410,7 +426,7 @@ export async function clearAllData(): Promise<void> {
       tx.oncomplete = () => resolve();
     });
   } catch {
-    // fallback
+    // ignore
   }
 
   inMemoryProjects = [];
@@ -423,7 +439,7 @@ export async function clearAllData(): Promise<void> {
 }
 
 /**
- * Retrieves application settings
+ * Retrieves application settings from storage.
  */
 export async function getSettings(): Promise<AppSettings> {
   try {
@@ -456,7 +472,7 @@ export async function getSettings(): Promise<AppSettings> {
 }
 
 /**
- * Saves application settings
+ * Persists application settings to storage.
  */
 export async function saveSettings(settings: AppSettings): Promise<void> {
   inMemorySettings = { ...settings };

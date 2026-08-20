@@ -1,7 +1,7 @@
 import { ParsedMaterialRow } from '../../types/material';
 
 /**
- * Detects the most probable delimiter in a CSV/TSV text (comma, semicolon, tab)
+ * Detects the most probable delimiter in CSV/TSV text (comma, semicolon, tab).
  */
 function detectDelimiter(firstFewLines: string[]): string {
   let commaCount = 0;
@@ -20,7 +20,7 @@ function detectDelimiter(firstFewLines: string[]): string {
 }
 
 /**
- * Parses a single line of delimited text taking quotes into account
+ * Parses a single line of delimited text while respecting quotation marks and escaped quotes.
  */
 function parseDelimitedLine(line: string, delimiter: string): string[] {
   const result: string[] = [];
@@ -50,77 +50,90 @@ function parseDelimitedLine(line: string, delimiter: string): string[] {
 }
 
 /**
- * Parses integer quantities handling commas/dots formatting
+ * Parses integer quantities and strips potential thousands formatting.
  */
 function parseQuantity(val: string): number {
   if (!val) return 0;
-  // Remove thousand separators
   const clean = val.replace(/,/g, '').replace(/\s+/g, '');
   const parsed = parseInt(clean, 10);
   return isNaN(parsed) ? 0 : parsed;
 }
 
+/**
+ * Parses standard CSV/TSV material list exports from Litematica.
+ * Dynamically resolves column positions based on header labels (supporting English and Spanish headers).
+ */
 export function parseCSV(content: string): ParsedMaterialRow[] {
-  const lines = content.split(/\r?\n/).filter(line => line.trim().length > 0);
+  const lines = content.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
   if (lines.length === 0) return [];
 
   const delimiter = detectDelimiter(lines.slice(0, 5));
   const rows: ParsedMaterialRow[] = [];
 
-  let headerIndex = -1;
   let itemCol = 0;
   let totalCol = 1;
   let missingCol = 2;
   let availableCol = 3;
+  let startLine = 0;
 
-  for (let i = 0; i < lines.length; i++) {
-    const cols = parseDelimitedLine(lines[i], delimiter);
-    if (cols.length === 0) continue;
-
-    const lowerCols = cols.map(c => c.toLowerCase());
-
-    // Check if this row is a header
-    const isHeader = lowerCols.some(c =>
-      ['item', 'material', 'bloque', 'name', 'nombre', 'total', 'missing', 'faltan'].includes(c)
+  // Header detection pass
+  const firstRowCols = parseDelimitedLine(lines[0], delimiter);
+  const isHeader = firstRowCols.some(col => {
+    const lower = col.toLowerCase();
+    return (
+      lower.includes('item') ||
+      lower.includes('material') ||
+      lower.includes('total') ||
+      lower.includes('missing') ||
+      lower.includes('falta') ||
+      lower.includes('disponible') ||
+      lower.includes('available')
     );
+  });
 
-    if (isHeader) {
-      headerIndex = i;
-      lowerCols.forEach((col, idx) => {
-        if (col.includes('item') || col.includes('material') || col.includes('name') || col.includes('nombre') || col.includes('bloque')) {
-          itemCol = idx;
-        } else if (col.includes('total') || col.includes('required') || col.includes('requerido') || col.includes('necesario')) {
-          totalCol = idx;
-        } else if (col.includes('missing') || col.includes('falta') || col.includes('faltante')) {
-          missingCol = idx;
-        } else if (col.includes('available') || col.includes('disponible') || col.includes('posee')) {
-          availableCol = idx;
-        }
-      });
-      continue;
-    }
+  if (isHeader) {
+    startLine = 1;
+    firstRowCols.forEach((col, idx) => {
+      const lower = col.toLowerCase();
+      if (lower.includes('item') || lower.includes('material') || lower.includes('nombre')) {
+        itemCol = idx;
+      } else if (lower.includes('total')) {
+        totalCol = idx;
+      } else if (lower.includes('missing') || lower.includes('falta') || lower.includes('faltante')) {
+        missingCol = idx;
+      } else if (lower.includes('available') || lower.includes('disponible') || lower.includes('tengo')) {
+        availableCol = idx;
+      }
+    });
+  }
 
-    // Skip non-header meta lines before header if any
-    if (headerIndex === -1 && lines.length > 1 && i === 0 && isNaN(parseInt(cols[1], 10))) {
-      continue;
-    }
+  // Parse data rows
+  for (let i = startLine; i < lines.length; i++) {
+    const line = lines[i];
+    const cols = parseDelimitedLine(line, delimiter);
 
+    if (cols.length === 0) continue;
     const rawName = cols[itemCol] || '';
-    if (!rawName) continue;
+    if (!rawName.trim()) continue;
 
-    const total = parseQuantity(cols[totalCol]);
-    const missing = missingCol < cols.length ? parseQuantity(cols[missingCol]) : total;
-    const available = availableCol < cols.length ? parseQuantity(cols[availableCol]) : Math.max(0, total - missing);
+    // Ignore repetitive header or total rows within the data
+    const lowerName = rawName.toLowerCase();
+    if (lowerName === 'item' || lowerName === 'material' || lowerName === 'total') continue;
 
-    if (total > 0 || missing > 0) {
-      rows.push({
-        rawName,
-        total: total || missing,
-        missing: missing !== undefined ? missing : total,
-        available,
-        lineNumber: i + 1,
-      });
-    }
+    const total = parseQuantity(cols[totalCol] || '0');
+    const missing = parseQuantity(cols[missingCol] || '0');
+    const available = parseQuantity(cols[availableCol] || '0');
+    const finalTotal = total > 0 ? total : (missing + available);
+
+    if (finalTotal <= 0) continue;
+
+    rows.push({
+      rawName,
+      total: finalTotal,
+      missing,
+      available,
+      lineNumber: i,
+    });
   }
 
   return rows;

@@ -3,8 +3,8 @@ import { ProjectProgress } from '../../types/project';
 import { CraftingStep } from '../../types/recipe';
 
 /**
- * Calculates overall project progress based on owned blocks vs required blocks,
- * as well as completed materials and crafting steps.
+ * Calculates overall project progress based on owned blocks vs required blocks.
+ * Progress is driven strictly by base build objects to prevent inventory double counting.
  */
 export function calculateProjectProgress(
   materials: AnalyzedMaterial[],
@@ -55,7 +55,7 @@ export function calculateProjectProgress(
 }
 
 /**
- * Calculates progress percentage for a single material (0 to 100)
+ * Calculates progress percentage for a single material item (clamped 0 to 100).
  */
 export function calculateMaterialProgress(required: number, owned: number): number {
   if (required <= 0) return 100;
