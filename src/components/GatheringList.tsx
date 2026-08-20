@@ -17,7 +17,7 @@ export const GatheringList: React.FC<GatheringListProps> = ({
   onUpdateOwned,
   onUpdateRawOwned,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'build' | 'raw'>('build');
+  const [activeSubTab, setActiveSubTab] = useState<'build' | 'raw'>('raw');
 
   // Build Objects Checklist state
   const completedBuildCount = materials.filter((m) => m.missing === 0).length;
@@ -39,26 +39,12 @@ export const GatheringList: React.FC<GatheringListProps> = ({
             </h2>
           </div>
           <p className="text-slate-500 text-xs mt-0.5">
-            Everything you still need to collect. Use steppers or one-click completion while playing.
+            Raw materials to mine, farm, and harvest in the world, plus construction target block checklists.
           </p>
         </div>
 
         {/* Sub-tab switcher */}
         <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg">
-          <button
-            type="button"
-            onClick={() => setActiveSubTab('build')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
-              activeSubTab === 'build'
-                ? 'bg-white text-blue-600 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Boxes className="w-3.5 h-3.5" />
-            <span>Build Objects</span>
-            <span className="text-[10px] font-mono opacity-80">({completedBuildCount}/{totalBuildCount})</span>
-          </button>
-
           <button
             type="button"
             onClick={() => setActiveSubTab('raw')}
@@ -71,6 +57,20 @@ export const GatheringList: React.FC<GatheringListProps> = ({
             <Pickaxe className="w-3.5 h-3.5" />
             <span>Raw Resources</span>
             <span className="text-[10px] font-mono opacity-80">({completedRawCount}/{totalRawCount})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('build')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
+              activeSubTab === 'build'
+                ? 'bg-white text-blue-600 shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Boxes className="w-3.5 h-3.5" />
+            <span>Build Objects</span>
+            <span className="text-[10px] font-mono opacity-80">({completedBuildCount}/{totalBuildCount})</span>
           </button>
         </div>
       </div>

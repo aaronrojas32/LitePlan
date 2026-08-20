@@ -190,6 +190,54 @@ export const STONE_RECIPES: Recipe[] = [
     isDefault: true,
     minecraftVersion: '1.21',
   },
+  {
+    id: 'minecraft:mossy_cobblestone',
+    type: 'crafting_shapeless',
+    output: { itemId: 'minecraft:mossy_cobblestone', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:cobblestone', quantity: 1 },
+      { itemId: 'minecraft:vine', quantity: 1 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:mossy_cobblestone_from_moss',
+    type: 'crafting_shapeless',
+    output: { itemId: 'minecraft:mossy_cobblestone', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:cobblestone', quantity: 1 },
+      { itemId: 'minecraft:moss_block', quantity: 1 },
+    ],
+    priority: 90,
+    isDefault: false,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:mossy_stone_bricks',
+    type: 'crafting_shapeless',
+    output: { itemId: 'minecraft:mossy_stone_bricks', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:stone_bricks', quantity: 1 },
+      { itemId: 'minecraft:vine', quantity: 1 },
+    ],
+    priority: 100,
+    isDefault: true,
+    minecraftVersion: '1.21',
+  },
+  {
+    id: 'minecraft:mossy_stone_bricks_from_moss',
+    type: 'crafting_shapeless',
+    output: { itemId: 'minecraft:mossy_stone_bricks', quantity: 1 },
+    ingredients: [
+      { itemId: 'minecraft:stone_bricks', quantity: 1 },
+      { itemId: 'minecraft:moss_block', quantity: 1 },
+    ],
+    priority: 90,
+    isDefault: false,
+    minecraftVersion: '1.21',
+  },
 
   // 7. Deepslate Transformations
   {
