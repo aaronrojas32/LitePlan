@@ -48,6 +48,9 @@ export interface ResolvedRecipeNode {
   displayName: string;
   tier: MaterialTier;
   quantity: number;
+  totalQuantity: number;
+  stacks: string;
+  isLeaf: boolean;
   recipeType?: RecipeType;
   recipe?: Recipe;
   craftCount?: number;

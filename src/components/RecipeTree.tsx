@@ -45,11 +45,13 @@ export const RecipeTree: React.FC<RecipeTreeProps> = ({ node, isRoot = true }) =
           <span className="font-bold">{node.displayName}</span>
           <span className="text-slate-400">•</span>
           <span className="font-mono font-bold">
-            {node.totalQuantity.toLocaleString()}x
+            {(node.totalQuantity ?? (node as any).quantity ?? 0).toLocaleString()}x
           </span>
-          <span className="text-slate-500 font-mono text-[11px]">
-            ({node.stacks})
-          </span>
+          {node.stacks && (
+            <span className="text-slate-500 font-mono text-[11px]">
+              ({node.stacks})
+            </span>
+          )}
 
           {/* Tier / Process Badges */}
           {node.tier === 'RAW' || node.isLeaf ? (

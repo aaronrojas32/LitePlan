@@ -50,12 +50,18 @@ export function resolveRecipeTree(
   const matDef = MATERIALS_DATABASE[itemId];
   const displayName = matDef?.displayNameEs || matDef?.displayNameEn || itemId.replace('minecraft:', '');
 
+  const stackSize = matDef?.stackSize || 64;
+  const stacks = calculateStacks(quantity, stackSize).formatted;
+
   if (quantity <= 0) {
     return {
       itemId,
       displayName,
       tier: 'RAW',
       quantity: 0,
+      totalQuantity: 0,
+      stacks: calculateStacks(0, stackSize).formatted,
+      isLeaf: true,
       children: [],
     };
   }
@@ -69,6 +75,9 @@ export function resolveRecipeTree(
       displayName,
       tier: isRoot ? 'BUILD' : 'RAW',
       quantity,
+      totalQuantity: quantity,
+      stacks,
+      isLeaf: true,
       transformationText: !recipe ? 'Base Raw Resource (No recipe)' : 'Circular Reference Protected',
       children: [],
     };
@@ -116,6 +125,9 @@ export function resolveRecipeTree(
     displayName,
     tier,
     quantity,
+    totalQuantity: quantity,
+    stacks,
+    isLeaf: false,
     recipeType: recipe.type,
     recipe,
     craftCount,
@@ -243,11 +255,15 @@ export function processBuildTree(
     traverse(rootNode, item.itemId, item.displayName);
   }
 
+  const totalBuildQty = buildItems.reduce((acc, i) => acc + i.quantity, 0);
   const combinedRoot: ResolvedRecipeNode = {
     itemId: 'liteplan:build_root',
     displayName: 'Complete Build Requirements',
     tier: 'BUILD',
-    quantity: buildItems.reduce((acc, i) => acc + i.quantity, 0),
+    quantity: totalBuildQty,
+    totalQuantity: totalBuildQty,
+    stacks: calculateStacks(totalBuildQty, 64).formatted,
+    isLeaf: false,
     children: virtualRoots,
   };
 
