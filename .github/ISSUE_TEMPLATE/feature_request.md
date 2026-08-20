@@ -1,23 +1,29 @@
 ---
-name: Feature Request
-about: Suggest a new feature or improvement for LitePlan
-title: '[FEATURE] '
-labels: ['enhancement']
+name: Feature request
+about: Suggest an idea or improvement for LitePlan
+title: "[FEATURE] "
+labels: "enhancement"
 assignees: ''
 ---
 
-## Problem Statement
+**Is your feature request related to a problem? Please describe.**
+A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-Describe the use case or limitation you are encountering.
+**Describe the solution you'd like**
+A clear and concise description of what you want to happen.
 
-## Proposed Solution
+**Describe alternatives you've considered**
+A clear and concise description of any alternative solutions or features you've considered.
 
-Describe how the proposed feature or improvement should work.
+**Screenshots / Mockups**
+If applicable, add screenshots or sketches to help explain your idea.
 
-## Alternative Approaches
+**Additional context**
+Add any other context, Minecraft mechanics, or references here.
 
-Any alternative solutions or workarounds you considered.
+**Do you want to work on this issue?**
+- [ ] Yes
+- [ ] No
 
-## Additional Context
-
-Add any extra context, Minecraft mechanics, or references if applicable.
+**Additional information**
+If anyone wants to work on this issue, please comment down below.
