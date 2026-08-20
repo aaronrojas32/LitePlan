@@ -294,6 +294,7 @@ export const WOOD_RECIPES: Recipe[] = [
   ...createWoodFamily('dark_oak', 'minecraft:dark_oak_log', 'minecraft:dark_oak_planks', 'minecraft:dark_oak_wood'),
   ...createWoodFamily('mangrove', 'minecraft:mangrove_log', 'minecraft:mangrove_planks', 'minecraft:mangrove_wood'),
   ...createWoodFamily('cherry', 'minecraft:cherry_log', 'minecraft:cherry_planks', 'minecraft:cherry_wood'),
+  ...createWoodFamily('pale_oak', 'minecraft:pale_oak_log', 'minecraft:pale_oak_planks', 'minecraft:pale_oak_wood'),
   ...createWoodFamily('crimson', 'minecraft:crimson_stem', 'minecraft:crimson_planks', 'minecraft:crimson_hyphae'),
   ...createWoodFamily('warped', 'minecraft:warped_stem', 'minecraft:warped_planks', 'minecraft:warped_hyphae'),
 

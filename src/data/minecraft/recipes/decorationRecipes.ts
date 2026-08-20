@@ -327,46 +327,132 @@ export const DECORATION_RECIPES: Recipe[] = [
     minecraftVersion: '1.21',
   },
 
-  // 5. Wool & Fabrics
+  // 5. Candles & Base Candle
   {
-    id: 'minecraft:white_bed',
-    type: 'crafting_shaped',
-    gridSize: '3x3',
-    gridPattern: [
-      ['minecraft:white_wool', 'minecraft:white_wool', 'minecraft:white_wool'],
-      ['minecraft:oak_planks', 'minecraft:oak_planks', 'minecraft:oak_planks'],
-      [null, null, null],
-    ],
-    output: { itemId: 'minecraft:white_bed', quantity: 1 },
-    ingredients: [
-      { itemId: 'minecraft:white_wool', quantity: 3 },
-      { itemId: 'minecraft:oak_planks', quantity: 3 },
-    ],
-    priority: 100,
-    isDefault: true,
-    minecraftVersion: '1.21',
-  },
-  {
-    id: 'minecraft:white_carpet',
+    id: 'minecraft:candle',
     type: 'crafting_shaped',
     gridSize: '2x2',
-    output: { itemId: 'minecraft:white_carpet', quantity: 3 },
-    ingredients: [{ itemId: 'minecraft:white_wool', quantity: 2 }],
-    priority: 100,
-    isDefault: true,
-    minecraftVersion: '1.21',
-  },
-  {
-    id: 'minecraft:white_banner',
-    type: 'crafting_shaped',
-    gridSize: '3x3',
-    output: { itemId: 'minecraft:white_banner', quantity: 1 },
+    output: { itemId: 'minecraft:candle', quantity: 1 },
     ingredients: [
-      { itemId: 'minecraft:white_wool', quantity: 6 },
-      { itemId: 'minecraft:stick', quantity: 1 },
+      { itemId: 'minecraft:string', quantity: 1 },
+      { itemId: 'minecraft:honeycomb', quantity: 1 },
     ],
     priority: 100,
     isDefault: true,
     minecraftVersion: '1.21',
   },
+  // 6. 16 Color Families
+  ...([
+    'white',
+    'orange',
+    'magenta',
+    'light_blue',
+    'yellow',
+    'lime',
+    'pink',
+    'gray',
+    'light_gray',
+    'cyan',
+    'purple',
+    'blue',
+    'brown',
+    'green',
+    'red',
+    'black',
+  ] as const).flatMap((color) => [
+    // Bed
+    {
+      id: `minecraft:${color}_bed`,
+      type: 'crafting_shaped' as const,
+      gridSize: '3x3' as const,
+      gridPattern: [
+        [`minecraft:${color}_wool`, `minecraft:${color}_wool`, `minecraft:${color}_wool`],
+        ['minecraft:oak_planks', 'minecraft:oak_planks', 'minecraft:oak_planks'],
+        [null, null, null],
+      ],
+      output: { itemId: `minecraft:${color}_bed`, quantity: 1 },
+      ingredients: [
+        { itemId: `minecraft:${color}_wool`, quantity: 3 },
+        { itemId: 'minecraft:oak_planks', quantity: 3 },
+      ],
+      priority: 100,
+      isDefault: true,
+      minecraftVersion: '1.21',
+    },
+    // Carpet
+    {
+      id: `minecraft:${color}_carpet`,
+      type: 'crafting_shaped' as const,
+      gridSize: '2x2' as const,
+      output: { itemId: `minecraft:${color}_carpet`, quantity: 3 },
+      ingredients: [{ itemId: `minecraft:${color}_wool`, quantity: 2 }],
+      priority: 100,
+      isDefault: true,
+      minecraftVersion: '1.21',
+    },
+    // Banner
+    {
+      id: `minecraft:${color}_banner`,
+      type: 'crafting_shaped' as const,
+      gridSize: '3x3' as const,
+      output: { itemId: `minecraft:${color}_banner`, quantity: 1 },
+      ingredients: [
+        { itemId: `minecraft:${color}_wool`, quantity: 6 },
+        { itemId: 'minecraft:stick', quantity: 1 },
+      ],
+      priority: 100,
+      isDefault: true,
+      minecraftVersion: '1.21',
+    },
+    // Stained Glass
+    {
+      id: `minecraft:${color}_stained_glass`,
+      type: 'crafting_shaped' as const,
+      gridSize: '3x3' as const,
+      output: { itemId: `minecraft:${color}_stained_glass`, quantity: 8 },
+      ingredients: [
+        { itemId: 'minecraft:glass', quantity: 8 },
+        { itemId: `minecraft:${color}_dye`, quantity: 1 },
+      ],
+      priority: 100,
+      isDefault: true,
+      minecraftVersion: '1.21',
+    },
+    // Stained Glass Pane
+    {
+      id: `minecraft:${color}_stained_glass_pane`,
+      type: 'crafting_shaped' as const,
+      gridSize: '3x3' as const,
+      output: { itemId: `minecraft:${color}_stained_glass_pane`, quantity: 16 },
+      ingredients: [{ itemId: `minecraft:${color}_stained_glass`, quantity: 6 }],
+      priority: 100,
+      isDefault: true,
+      minecraftVersion: '1.21',
+    },
+    // Concrete Powder
+    {
+      id: `minecraft:${color}_concrete_powder`,
+      type: 'crafting_shapeless' as const,
+      output: { itemId: `minecraft:${color}_concrete_powder`, quantity: 8 },
+      ingredients: [
+        { itemId: 'minecraft:sand', quantity: 4 },
+        { itemId: 'minecraft:gravel', quantity: 4 },
+        { itemId: `minecraft:${color}_dye`, quantity: 1 },
+      ],
+      priority: 100,
+      isDefault: true,
+      minecraftVersion: '1.21',
+    },
+    // Glazed Terracotta
+    {
+      id: `minecraft:${color}_glazed_terracotta`,
+      type: 'smelting' as const,
+      smeltingInput: `minecraft:${color}_terracotta`,
+      output: { itemId: `minecraft:${color}_glazed_terracotta`, quantity: 1 },
+      ingredients: [{ itemId: `minecraft:${color}_terracotta`, quantity: 1 }],
+      priority: 100,
+      isDefault: true,
+      minecraftVersion: '1.21',
+    },
+  ]),
 ];

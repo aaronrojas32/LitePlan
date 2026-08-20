@@ -182,4 +182,60 @@ describe('Recipes & Multi-Tier Resolution Test Suite', () => {
       expect(rawMaterials.length).toBeGreaterThan(0);
     });
   });
+
+  describe('Critical Test 8: Polished Stones and Mossy Stone Variants', () => {
+    it('resolves Polished Diorite into Diorite in Raw Resources (and 0 Polished Diorite in Raw)', () => {
+      const materials = [
+        {
+          id: 'minecraft:polished_diorite',
+          minecraftId: 'minecraft:polished_diorite',
+          displayName: 'Polished Diorite',
+          category: 'stone' as const,
+          stackSize: 64,
+          totalRequired: 64,
+          owned: 0,
+          missing: 64,
+          available: 0,
+          craftable: true,
+          isRaw: false,
+        },
+      ];
+
+      const rawResults = calculateRawMaterials(materials as any);
+      expect(rawResults.find((r) => r.itemId === 'minecraft:polished_diorite')).toBeUndefined();
+
+      const dioriteRaw = rawResults.find((r) => r.itemId === 'minecraft:diorite');
+      expect(dioriteRaw).toBeDefined();
+      expect(dioriteRaw?.quantity).toBe(64);
+    });
+
+    it('resolves Mossy Cobblestone into Cobblestone and Vine in Raw Resources', () => {
+      const materials = [
+        {
+          id: 'minecraft:mossy_cobblestone',
+          minecraftId: 'minecraft:mossy_cobblestone',
+          displayName: 'Mossy Cobblestone',
+          category: 'stone' as const,
+          stackSize: 64,
+          totalRequired: 32,
+          owned: 0,
+          missing: 32,
+          available: 0,
+          craftable: true,
+          isRaw: false,
+        },
+      ];
+
+      const rawResults = calculateRawMaterials(materials as any);
+      expect(rawResults.find((r) => r.itemId === 'minecraft:mossy_cobblestone')).toBeUndefined();
+
+      const cobbleRaw = rawResults.find((r) => r.itemId === 'minecraft:cobblestone');
+      expect(cobbleRaw).toBeDefined();
+      expect(cobbleRaw?.quantity).toBe(32);
+
+      const vineRaw = rawResults.find((r) => r.itemId === 'minecraft:vine');
+      expect(vineRaw).toBeDefined();
+      expect(vineRaw?.quantity).toBe(32);
+    });
+  });
 });
