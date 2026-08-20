@@ -376,7 +376,7 @@ export async function exportLitePlanBackup(): Promise<string> {
   const settings = await getSettings();
 
   const backup: LitePlanBackup = {
-    version: '2.7.0',
+    version: '2.8.0',
     exportedAt: new Date().toISOString(),
     projects,
     settings,

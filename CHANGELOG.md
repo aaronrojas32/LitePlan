@@ -2,6 +2,17 @@
 
 All notable changes to **LitePlan** are documented in this file.
 
+## [2.8.0] - 2026-08-20
+
+### Added
+- **Full Minecraft 1.21 Dataset Integration**:
+  - Expanded `materialsDatabase.ts` to include all **1,506 Minecraft 1.21 items** with exact stack sizes, categories, and bilingual Spanish/English display names.
+  - Extracted and integrated the full collection of **1,914 high-fidelity Minecraft PNG icons** into `/public/assets/minecraft/` for 100% offline, native pixelated icon rendering.
+  - Added comprehensive 1.21 recipes for Pale Oak wood, Tuff families, Blackstone, Resin, Copper variants (bars, chain, lantern, bulb, grate, door, trapdoor), 16-color dyes (beds, banners, carpets, stained glass, concrete powder, glazed terracotta), and utility workstations (`crafter`, `beehive`, `lodestone`, `respawn_anchor`, `bundle`, `brush`, `spyglass`).
+- **Data Integrity & Consistency**:
+  - Fixed canonical ID for Eye of Ender (`minecraft:ender_eye`) and updated normalization alias mappings.
+  - Ensured natural mineable rocks (Diorite, Granite, Andesite, Tuff, Deepslate, etc.) decompose correctly into raw gather checklists.
+
 ## [2.7.0] - 2026-08-20
 
 ### Added
