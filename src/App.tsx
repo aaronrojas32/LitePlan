@@ -90,7 +90,9 @@ function AppContent() {
       console.log('[LitePlan Debug] Navigation switched to detail view for:', newProj.id);
     } catch (err: any) {
       console.error('[LitePlan Debug] Error creating project:', err);
-      showToast('Failed to create project from file', 'error');
+      const msg = err?.message || 'Failed to create project from file';
+      showToast(msg, 'error');
+      throw err;
     }
   };
 

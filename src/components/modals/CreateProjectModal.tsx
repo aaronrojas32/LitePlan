@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, FileText, Upload, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { X, FileText, Upload, RefreshCw, CheckCircle2, AlertCircle, AlertTriangle } from 'lucide-react';
 import { SAMPLE_NETHER_PORTAL_TXT, SAMPLE_NETHER_PORTAL_CSV, SAMPLE_REDSTONE_FACTORY_CSV } from '../../data/sampleData';
-import { parseLitematicaFile } from '../../lib/parser';
+import { parseLitematicaFile, validateLitematicaContent } from '../../lib/parser';
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -20,6 +20,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   const [filename, setFilename] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Always reset fields when modal closes or opens fresh
   useEffect(() => {
@@ -30,30 +31,38 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
       setFilename('');
       setIsProcessing(false);
       setIsDragging(false);
+      setSubmitError(null);
     }
   }, [isOpen]);
 
-  // Preview parsed stats if file content is available (HOOK IS UNCONDITIONALLY CALLED)
-  const parsedPreview = useMemo(() => {
+  // Real-time validation and preview calculation
+  const validationResult = useMemo(() => {
     if (!fileContent) return null;
+    return validateLitematicaContent(fileContent, filename);
+  }, [fileContent, filename]);
+
+  const parsedPreview = useMemo(() => {
+    if (!fileContent || !validationResult?.isValid) return null;
     try {
       const parsed = parseLitematicaFile(fileContent, filename || 'preview.csv');
       return {
         blocks: parsed.summary.totalBlocks,
         materials: parsed.materials.length,
+        format: parsed.format,
       };
     } catch {
       return null;
     }
-  }, [fileContent, filename]);
+  }, [fileContent, filename, validationResult]);
 
-  // ONLY return null after all hooks have been declared!
+  // ONLY return null after all hooks have been declared
   if (!isOpen) return null;
 
   const handleFileUpload = (file: File) => {
+    setSubmitError(null);
     const reader = new FileReader();
     reader.onload = (e) => {
-      const content = e.target?.result as string;
+      const content = (e.target?.result as string) || '';
       setFileContent(content);
       setFilename(file.name);
       if (!name) {
@@ -64,6 +73,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   };
 
   const loadSample = (type: 'nether_txt' | 'nether_csv' | 'redstone') => {
+    setSubmitError(null);
     if (type === 'nether_txt') {
       setFileContent(SAMPLE_NETHER_PORTAL_TXT);
       setFilename('portal_nether.txt');
@@ -83,18 +93,19 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
+
     if (!fileContent) {
-      console.warn('[LitePlan Debug] Create project cancelled: No file content');
+      setSubmitError('Please select or drag a Litematica export file.');
+      return;
+    }
+
+    if (validationResult && !validationResult.isValid) {
+      setSubmitError(validationResult.error || 'The file format is invalid.');
       return;
     }
 
     setIsProcessing(true);
-    console.log('[LitePlan Debug] Submitting project creation:', {
-      name: name.trim() || filename.replace(/\.[^/.]+$/, ''),
-      filename: filename || 'materials.csv',
-      contentLength: fileContent.length,
-      description: description.trim(),
-    });
 
     try {
       await onCreate(
@@ -103,10 +114,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         filename || 'materials.csv',
         description.trim()
       );
-      console.log('[LitePlan Debug] Project creation succeeded, closing modal');
       onClose();
-    } catch (err) {
-      console.error('[LitePlan Debug] Error submitting project creation:', err);
+    } catch (err: any) {
+      setSubmitError(err?.message || 'Failed to create project from file');
     } finally {
       setIsProcessing(false);
     }
@@ -122,7 +132,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               Create New Build Project
             </h3>
             <p className="text-slate-500 text-xs mt-0.5">
-              Import a Litematica export (.csv or .txt) to plan resources
+              Import a Litematica export (.csv, .tsv, or .txt) to plan resources
             </p>
           </div>
           <button
@@ -158,7 +168,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Notes or coordinates..."
+              placeholder="Notes, world name, or coordinates..."
               className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 shadow-2xs"
             />
           </div>
@@ -166,7 +176,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
           {/* Dropzone */}
           <div>
             <label className="text-xs font-semibold text-slate-700 block mb-1">
-              Litematica Material List (.csv or .txt) *
+              Litematica Material List (.csv, .tsv, or .txt) *
             </label>
 
             <div
@@ -188,7 +198,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             >
               {fileContent ? (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-slate-200">
+                  <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-slate-200 shadow-2xs">
                     <div className="flex items-center gap-2.5">
                       <FileText className="w-5 h-5 text-blue-600" />
                       <span className="font-semibold text-slate-800">{filename}</span>
@@ -198,6 +208,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                       onClick={() => {
                         setFileContent('');
                         setFilename('');
+                        setSubmitError(null);
                       }}
                       className="text-slate-400 hover:text-rose-600 font-medium cursor-pointer"
                     >
@@ -205,15 +216,37 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                     </button>
                   </div>
 
-                  {parsedPreview && (
-                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2 text-emerald-800 font-semibold">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        <span>File successfully parsed</span>
+                  {/* Validation Feedback States */}
+                  {validationResult && !validationResult.isValid && (
+                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg space-y-1.5 text-left text-xs">
+                      <div className="flex items-center gap-2 text-rose-800 font-bold">
+                        <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                        <span>Invalid Litematica File</span>
                       </div>
-                      <div className="font-mono text-emerald-900">
-                        <b>{parsedPreview.blocks.toLocaleString()}</b> blocks · <b>{parsedPreview.materials}</b> materials
+                      <p className="text-rose-700 leading-relaxed pl-6">
+                        {validationResult.error}
+                      </p>
+                    </div>
+                  )}
+
+                  {validationResult?.isValid && parsedPreview && (
+                    <div className="space-y-2">
+                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2 text-emerald-800 font-semibold">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span>Valid {parsedPreview.format === 'txt_ascii' ? 'ASCII Table' : 'CSV'} Export</span>
+                        </div>
+                        <div className="font-mono text-emerald-900 font-medium">
+                          <b>{parsedPreview.blocks.toLocaleString()}</b> blocks · <b>{parsedPreview.materials}</b> materials
+                        </div>
                       </div>
+
+                      {validationResult.warning && (
+                        <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 text-left text-[11px] text-amber-800">
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                          <span>{validationResult.warning}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -237,7 +270,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             </div>
 
             {/* Quick sample buttons */}
-            <div className="mt-2.5 flex items-center justify-between text-xs text-slate-400">
+            <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
               <span>Or try a sample build:</span>
               <div className="flex gap-1.5">
                 <button
@@ -258,6 +291,13 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             </div>
           </div>
 
+          {submitError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-2 text-rose-800 text-xs">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{submitError}</span>
+            </div>
+          )}
+
           {/* Action buttons */}
           <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
             <button
@@ -269,8 +309,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={!fileContent || isProcessing}
-              className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
+              disabled={!fileContent || !validationResult?.isValid || isProcessing}
+              className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               {isProcessing && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
               <span>Create Project</span>
