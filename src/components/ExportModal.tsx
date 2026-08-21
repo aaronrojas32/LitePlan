@@ -25,7 +25,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 }) => {
   const [format, setFormat] = useState<ExportFormat>('csv');
   const [type, setType] = useState<ExportType>('all');
-  const [lang, setLang] = useState<'es' | 'en'>('es');
+  const [lang, setLang] = useState<'es' | 'en'>('en');
 
   if (!isOpen) return null;
 
@@ -143,7 +143,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                     : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                Español
+                Spanish
               </button>
               <button
                 type="button"

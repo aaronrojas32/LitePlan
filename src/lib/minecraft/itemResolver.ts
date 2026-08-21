@@ -6,7 +6,7 @@ export function resolveItemDefinition(itemId: string): MaterialDefinition | null
   return MATERIALS_DATABASE[normalizedId] || null;
 }
 
-export function getItemDisplayName(itemId: string, lang: 'es' | 'en' = 'es'): string {
+export function getItemDisplayName(itemId: string, lang: 'es' | 'en' = 'en'): string {
   const def = resolveItemDefinition(itemId);
   if (!def) {
     return itemId.replace('minecraft:', '').replace(/_/g, ' ');

@@ -113,7 +113,7 @@ export const RecipeInspector: React.FC<RecipeInspectorProps> = ({
           {recipe && (
             <div className="space-y-2">
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                Métodos de Fabricación
+                Crafting & Smelting Methods
               </span>
               <RecipeViewer recipe={recipe} requiredQuantity={quantity} />
             </div>
