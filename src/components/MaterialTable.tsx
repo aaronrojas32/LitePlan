@@ -183,7 +183,7 @@ export const MaterialTable: React.FC<MaterialTableProps> = ({
                       {mat.displayName}
                     </span>
                     <span className="text-[10px] text-slate-400 font-mono">
-                      {mat.quantity.stacksFormatted} • {mat.storage.shulkerStorageFormatted}
+                      {mat.quantity.stacksFormatted} • {mat.quantity.shulkerCompact}
                     </span>
                   </div>
                 </div>

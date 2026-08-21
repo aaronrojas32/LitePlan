@@ -6,7 +6,7 @@ import { buildRecipeTree } from '../lib/recipes/recipeTree';
 import { getItemRawBreakdown } from '../lib/calculations/recipeCalculator';
 import { RecipeViewer } from './RecipeViewer';
 import { RecipeTree } from './RecipeTree';
-import { X, BookOpen, GitFork, Pickaxe, Sparkles, Compass } from 'lucide-react';
+import { X, BookOpen, GitFork, Pickaxe, Sparkles, Compass, Archive, Box, Layers } from 'lucide-react';
 import { Recipe } from '../types/recipe';
 
 interface MaterialDetailsProps {
@@ -23,10 +23,10 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
 
   useEffect(() => {
     if (material) {
-      const recipes = getAllRecipesForItem(material.id);
-      setSelectedRecipe(getRecipeForItem(material.id) || recipes[0]);
+      const recs = getAllRecipesForItem(material.id);
+      setSelectedRecipe(getRecipeForItem(material.id) || recs[0]);
     }
-  }, [material?.id]);
+  }, [material]);
 
   if (!material) return null;
 
@@ -81,38 +81,71 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
 
         {/* Content Body */}
         <div className="p-6 space-y-6 flex-1">
-          {/* Main Quantity Banner */}
-          <div className="p-5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Requerido para la Construcción
-            </span>
+          {/* Main 4-Tier Quantity & Storage Grid */}
+          <div className="p-5 bg-slate-50 rounded-xl border border-slate-200 space-y-3.5 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                Requerido para la Construcción
+              </span>
+              <span className="text-[10px] font-mono text-slate-400">
+                1 Stack = {material.stackSize}
+              </span>
+            </div>
+
             <div className="text-3xl font-extrabold font-mono text-slate-900">
-              {material.totalRequired.toLocaleString()} bloques
+              {material.totalRequired.toLocaleString()} <span className="text-sm font-semibold text-slate-500 font-sans">bloques</span>
             </div>
-            <div className="font-mono text-slate-600 text-xs">
-              {material.stacksRequired.formatted}
-            </div>
-            <div className="font-mono text-emerald-700 text-xs font-bold pt-1">
-              {material.storage.shulkerStorageFormatted}
+
+            {/* 4-Tier Container Breakdown Grid */}
+            <div className="grid grid-cols-2 gap-2 pt-1 font-mono">
+              <div className="p-2.5 rounded-lg bg-white border border-slate-200/80 space-y-0.5">
+                <span className="text-[10px] text-slate-400 font-sans font-medium flex items-center gap-1">
+                  <Layers className="w-3 h-3 text-slate-500" /> Stacks & Ítems
+                </span>
+                <span className="text-xs font-bold text-slate-800 block">
+                  {material.quantity.stacksFormatted}
+                </span>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-white border border-slate-200/80 space-y-0.5">
+                <span className="text-[10px] text-slate-400 font-sans font-medium flex items-center gap-1">
+                  <Archive className="w-3 h-3 text-purple-600" /> Cajas de Shulker
+                </span>
+                <span className="text-xs font-bold text-purple-700 block">
+                  {material.quantity.shulkerCompact}
+                </span>
+              </div>
+
+              <div className="col-span-2 p-2.5 rounded-lg bg-white border border-slate-200/80 space-y-0.5">
+                <span className="text-[10px] text-slate-400 font-sans font-medium flex items-center gap-1">
+                  <Box className="w-3 h-3 text-amber-600" /> Capacidad en Cofres Dobles
+                </span>
+                <span className="text-xs font-bold text-amber-800 block">
+                  {material.quantity.doubleChestCompact}
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Owned & Missing Stats */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 font-mono">
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-xs text-slate-400 font-medium block">En Inventario / Cofres</span>
-              <span className="text-lg font-bold text-slate-900 font-mono mt-0.5 block">
+              <span className="text-xs text-slate-400 font-sans font-medium block">En Inventario / Cofres</span>
+              <span className="text-lg font-bold text-slate-900 mt-0.5 block">
                 {material.owned.toLocaleString()}
+              </span>
+              <span className="text-[11px] text-slate-500 block">
+                {material.owned === 0 ? '0 stacks' : `${Math.floor(material.owned / material.stackSize)}s ${material.owned % material.stackSize}`}
               </span>
             </div>
 
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-xs text-slate-400 font-medium block">Faltante por Conseguir</span>
-              <span className={`text-lg font-bold font-mono mt-0.5 block ${material.missing > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+              <span className="text-xs text-slate-400 font-sans font-medium block">Faltante por Conseguir</span>
+              <span className={`text-lg font-bold mt-0.5 block ${material.missing > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
                 {material.missing.toLocaleString()}
               </span>
-              <span className="text-[11px] text-slate-400 font-mono block">
-                {material.stacksMissing.formatted}
+              <span className="text-[11px] text-slate-400 block">
+                {material.quantityMissing.stacksCompact}
               </span>
             </div>
           </div>

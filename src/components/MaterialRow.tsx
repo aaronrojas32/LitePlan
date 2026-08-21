@@ -3,6 +3,7 @@ import { AnalyzedMaterial } from '../types/material';
 import { ItemIcon } from './ItemIcon';
 import { Check, Plus, Minus } from 'lucide-react';
 import { calculateMaterialProgress } from '../lib/calculations/progressCalculator';
+import { StorageBreakdownBadge } from './ui/StorageBreakdownBadge';
 
 interface MaterialRowProps {
   material: AnalyzedMaterial;
@@ -114,14 +115,19 @@ export const MaterialRow: React.FC<MaterialRowProps> = ({
 
       {/* Stacks Breakdown */}
       <td className="py-2.5 px-3 font-mono text-slate-600 text-xs">
-        {material.quantity.stacksFormatted}
+        <StorageBreakdownBadge
+          amount={material.totalRequired}
+          stackSize={material.stackSize}
+          breakdown={material.quantity}
+          variant="compact"
+        />
       </td>
 
       {/* Storage Containers (Shulkers) */}
       <td className="py-2.5 px-3 text-center font-mono text-xs">
-        {material.quantity.shulkersRequired > 0 ? (
-          <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-            {material.quantity.shulkersRequired} {material.quantity.shulkersRequired === 1 ? 'Shulker' : 'Shulkers'}
+        {material.quantity.fullShulkers > 0 || material.quantity.shulkersRequired > 0 ? (
+          <span className="text-purple-700 font-semibold bg-purple-50 px-2 py-0.5 rounded border border-purple-200 inline-flex items-center gap-1">
+            {material.quantity.shulkerCompact}
           </span>
         ) : (
           <span className="text-slate-400">-</span>
