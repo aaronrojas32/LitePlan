@@ -1,7 +1,7 @@
 import { AnalyzedMaterial } from '../../types/material';
 import { RawMaterialRequirement } from '../../types/recipe';
 import { MATERIALS_DATABASE } from '../../data/materialsDatabase';
-import { calculateStacks, calculateShulkerStorage } from '../minecraft/storageCalculator';
+import { calculateItemQuantity } from '../minecraft/storageCalculator';
 import { processBuildTree } from './recipeResolutionEngine';
 
 /**
@@ -32,9 +32,8 @@ export function calculateRawMaterials(
     const owned = Math.max(0, rawOwnedMap[itemId] || 0);
     const missing = Math.max(0, requiredQuantity - owned);
 
-    const stacks = calculateStacks(requiredQuantity, stackSize).formatted;
-    const stacksMissing = calculateStacks(missing, stackSize).formatted;
-    const storage = calculateShulkerStorage(requiredQuantity, stackSize);
+    const breakdown = calculateItemQuantity(requiredQuantity, stackSize);
+    const breakdownMissing = calculateItemQuantity(missing, stackSize);
 
     const usedInList = Array.from(data.usedIn.entries()).map(([targetItemId, val]) => ({
       targetItemId,
@@ -49,11 +48,14 @@ export function calculateRawMaterials(
       quantity: requiredQuantity,
       owned,
       missing,
-      stacks,
-      stacksMissing,
-      storage,
+      stackSize,
+      stacks: breakdown.stacksFormatted,
+      stacksMissing: breakdownMissing.stacksFormatted,
+      storage: breakdown.shulkerStorageText,
       category: matDef?.category || 'nature',
       source: matDef?.source || 'vanilla',
+      breakdown,
+      breakdownMissing,
       usedIn: usedInList,
     });
   }

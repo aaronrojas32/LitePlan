@@ -79,11 +79,14 @@ export interface RawMaterialRequirement {
   quantity: number; // total required
   owned: number; // amount owned in raw inventory
   missing: number; // max(0, quantity - owned)
+  stackSize?: number;
   stacks: string;
   stacksMissing: string;
   storage: string;
   category: string;
   source: string;
+  breakdown?: import('../lib/minecraft/storageCalculator').ItemQuantityBreakdown;
+  breakdownMissing?: import('../lib/minecraft/storageCalculator').ItemQuantityBreakdown;
   usedIn: Array<{
     targetItemId: string;
     targetName: string;
