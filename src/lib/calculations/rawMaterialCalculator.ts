@@ -44,7 +44,7 @@ export function calculateRawMaterials(
     results.push({
       itemId,
       minecraftId: itemId,
-      displayName: matDef?.displayNameEs || matDef?.displayNameEn || itemId.replace('minecraft:', ''),
+      displayName: matDef?.displayNameEn || matDef?.displayNameEs || itemId.replace('minecraft:', ''),
       quantity: requiredQuantity,
       owned,
       missing,

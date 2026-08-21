@@ -205,7 +205,7 @@ export const WOOD_RECIPES: Recipe[] = [
     priority: 100,
     isDefault: true,
     minecraftVersion: '1.21',
-    description: '2x Tablas de madera -> 4x Palos',
+    description: '2x Wooden Planks -> 4x Sticks',
   },
   // Crafting Table
   {

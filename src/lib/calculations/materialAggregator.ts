@@ -118,7 +118,7 @@ export function aggregateMaterials(
     materials.push({
       id: mat.id,
       minecraftId: mat.minecraftId,
-      displayName: mat.displayNameEs || mat.displayNameEn,
+      displayName: mat.displayNameEn || mat.displayNameEs || mat.id,
       displayNameEn: mat.displayNameEn,
       displayNameEs: mat.displayNameEs,
       category: mat.category,

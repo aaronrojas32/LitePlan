@@ -303,7 +303,7 @@ export const STONE_RECIPES: Recipe[] = [
     priority: 100,
     isDefault: true,
     minecraftVersion: '1.21',
-    description: '2x Tierra + 2x Grava -> 4x Tierra estéril',
+    description: '2x Dirt + 2x Gravel -> 4x Coarse Dirt',
   },
   {
     id: 'minecraft:mossy_cobblestone',

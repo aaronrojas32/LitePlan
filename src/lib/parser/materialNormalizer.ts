@@ -76,7 +76,7 @@ export function normalizeMaterial(rawName: string): {
     category: 'misc',
     craftable: false,
     isRaw: true,
-    source: 'Recolectar en el mundo',
+    source: 'Harvest in the world',
     iconEmoji: '❓',
   };
 

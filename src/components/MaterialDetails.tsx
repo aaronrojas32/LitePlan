@@ -52,15 +52,15 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
                 </h3>
                 {material.craftable ? (
                   <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                    Crafteable
+                    Craftable
                   </span>
                 ) : hasRecipes ? (
                   <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1">
-                    <Sparkles className="w-2.5 h-2.5" /> Recurso con Receta
+                    <Sparkles className="w-2.5 h-2.5" /> Recipe Available
                   </span>
                 ) : (
                   <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    Recurso Natural
+                    Natural Resource
                   </span>
                 )}
               </div>
@@ -85,7 +85,7 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
           <div className="p-5 bg-slate-50 rounded-xl border border-slate-200 space-y-3.5 shadow-2xs">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                Requerido para la Construcción
+                Required for Construction
               </span>
               <span className="text-[10px] font-mono text-slate-400">
                 1 Stack = {material.stackSize}
@@ -93,14 +93,14 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
             </div>
 
             <div className="text-3xl font-extrabold font-mono text-slate-900">
-              {material.totalRequired.toLocaleString()} <span className="text-sm font-semibold text-slate-500 font-sans">bloques</span>
+              {material.totalRequired.toLocaleString()} <span className="text-sm font-semibold text-slate-500 font-sans">blocks</span>
             </div>
 
             {/* 4-Tier Container Breakdown Grid */}
             <div className="grid grid-cols-2 gap-2 pt-1 font-mono">
               <div className="p-2.5 rounded-lg bg-white border border-slate-200/80 space-y-0.5">
                 <span className="text-[10px] text-slate-400 font-sans font-medium flex items-center gap-1">
-                  <Layers className="w-3 h-3 text-slate-500" /> Stacks & Ítems
+                  <Layers className="w-3 h-3 text-slate-500" /> Stacks & Items
                 </span>
                 <span className="text-xs font-bold text-slate-800 block">
                   {material.quantity.stacksFormatted}
@@ -109,7 +109,7 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
 
               <div className="p-2.5 rounded-lg bg-white border border-slate-200/80 space-y-0.5">
                 <span className="text-[10px] text-slate-400 font-sans font-medium flex items-center gap-1">
-                  <Archive className="w-3 h-3 text-purple-600" /> Cajas de Shulker
+                  <Archive className="w-3 h-3 text-purple-600" /> Shulker Boxes
                 </span>
                 <span className="text-xs font-bold text-purple-700 block">
                   {material.quantity.shulkerCompact}
@@ -118,7 +118,7 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
 
               <div className="col-span-2 p-2.5 rounded-lg bg-white border border-slate-200/80 space-y-0.5">
                 <span className="text-[10px] text-slate-400 font-sans font-medium flex items-center gap-1">
-                  <Box className="w-3 h-3 text-amber-600" /> Capacidad en Cofres Dobles
+                  <Box className="w-3 h-3 text-amber-600" /> Double Chest Capacity
                 </span>
                 <span className="text-xs font-bold text-amber-800 block">
                   {material.quantity.doubleChestCompact}
@@ -130,7 +130,7 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
           {/* Owned & Missing Stats */}
           <div className="grid grid-cols-2 gap-3 font-mono">
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-xs text-slate-400 font-sans font-medium block">En Inventario / Cofres</span>
+              <span className="text-xs text-slate-400 font-sans font-medium block">In Inventory / Chests</span>
               <span className="text-lg font-bold text-slate-900 mt-0.5 block">
                 {material.owned.toLocaleString()}
               </span>
@@ -140,7 +140,7 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
             </div>
 
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-xs text-slate-400 font-sans font-medium block">Faltante por Conseguir</span>
+              <span className="text-xs text-slate-400 font-sans font-medium block">Missing to Collect</span>
               <span className={`text-lg font-bold mt-0.5 block ${material.missing > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
                 {material.missing.toLocaleString()}
               </span>
@@ -155,7 +155,7 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
             <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1 shadow-2xs">
               <div className="flex items-center gap-1.5 text-slate-700 font-bold text-[11px] uppercase tracking-wider">
                 <Compass className="w-3.5 h-3.5 text-blue-600" />
-                <span>Procedencia y Vías de Obtención</span>
+                <span>Provenance & Acquisition Methods</span>
               </div>
               <p className="text-slate-600 text-xs leading-relaxed">
                 {material.source}
@@ -176,7 +176,7 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
                       : 'border-transparent text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  <BookOpen className="w-4 h-4" /> Receta y Métodos
+                  <BookOpen className="w-4 h-4" /> Recipe & Methods
                   {allRecipes.length > 1 && (
                     <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-blue-100 text-blue-800 font-mono font-bold">
                       {allRecipes.length}
@@ -192,7 +192,7 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
                       : 'border-transparent text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  <GitFork className="w-4 h-4" /> Árbol de Crafteo
+                  <GitFork className="w-4 h-4" /> Crafting Tree
                 </button>
                 <button
                   type="button"
@@ -203,7 +203,7 @@ export const MaterialDetails: React.FC<MaterialDetailsProps> = ({ material, onCl
                       : 'border-transparent text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  <Pickaxe className="w-4 h-4" /> Materias Primas
+                  <Pickaxe className="w-4 h-4" /> Raw Materials
                 </button>
               </div>
 
